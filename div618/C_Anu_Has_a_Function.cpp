@@ -14,13 +14,25 @@ int main() {
 
     int len; cin >> len;
     vector<int> vec;
+    int base = ~0;
     while (len--) {
         int n; cin >> n;
         vec.push_back(n);
+        base &= ~n;
     }
-    sort(vec.rbegin(), vec.rend());
-    for (auto i : vec) {
-        cout << i << " ";
+    int maxIndex = -INF;
+    int maxVal = -INF;
+    FOR(i, 0, vec.size()) {
+        int newVal = base | vec[i] & vec[i];
+        if (maxVal < newVal) {
+            maxVal =  newVal;
+            maxIndex = i;
+        }
+    }
+    cout << vec[maxIndex] << " ";
+    FOR(i, 0, vec.size()) {
+        if (i == maxIndex) continue;
+        cout << vec[i] << " ";
     }
     cout << "\n";
     return 0;
