@@ -6,26 +6,36 @@ using namespace std;
 #define FOR(i, a, b) for (int (i) = (a); (i) < (b); ++(i))
 #define FOR_(i, a, b) for (int (i) = (a); (i) <= (b); ++(i))
 
+#define T (~0)
+
 int main() {
     freopen("input.txt", "r", stdin);
-    // freopen("output.txt", "w", stdout);
+    freopen("output.txt", "w", stdout);
     ios_base::sync_with_stdio(false);
     cin.tie(0);
 
     int len; cin >> len;
     vector<int> vec;
-    int base = ~0;
     while (len--) {
         int n; cin >> n;
         vec.push_back(n);
-        base &= ~n;
     }
-    int maxIndex = -INF;
-    int maxVal = -INF;
+    vector<int> prefixAnd(vec.size());
+    vector<int> postfixAnd(vec.size());
+    int preAcc = T;
+    int postAcc = T;
     FOR(i, 0, vec.size()) {
-        int newVal = base | vec[i] & vec[i];
-        if (maxVal < newVal) {
-            maxVal =  newVal;
+        prefixAnd[i] = (preAcc &= ~vec[i]);
+        int n = vec.size() - i - 1;
+        postfixAnd[n] = (postAcc &= ~vec[n]);
+    }
+    int maxIndex = 0;
+    int maxVal = -1;
+    FOR(i, 0, vec.size()) {
+        int base = (i == 0 ? T : prefixAnd[i - 1]) & (i == vec.size() - T ? 1 : postfixAnd[i + 1]);
+        int val = (base & vec[i]);
+        if (val > maxVal) {
+            maxVal = val;
             maxIndex = i;
         }
     }
