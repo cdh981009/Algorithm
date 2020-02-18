@@ -6,6 +6,7 @@ using namespace std;
 #define FOR_(i, a, b) for (int (i) = (a); (i) <= (b); ++(i))
 #define x first
 #define y second
+#define ll long long
 
 int main() {
     freopen("input.txt", "r", stdin);
@@ -34,8 +35,22 @@ int main() {
             return 0;
         }
     }
+    //cout << "dot reflectiviy passed\n";
 
-    // TODO, determine convex hull 
+    FOR(i, 0, points) {
+        pair<int, int>& curr = polygon[i];
+        pair<int, int>& prev = (i == 0) ? polygon.back() : polygon[i - 1];
+        pair<int, int>& next = (i == points - 1) ? polygon.front() : polygon[i + 1];
+        pair<int, int> vector1 = {prev.x - curr.x, prev.y - curr.y};
+        pair<int, int> vector2 = {next.x - curr.x, next.y - curr.y};
+        bool convex = (ll) vector1.x * vector2.y < (ll) vector1.y * vector2.x;
+        if (!convex) {
+            cout << "No\n";
+            return 0;
+        }
+    }
+    // cout << "convex hull reflectiviy passed\n";
+
     cout << "Yes\n";
     return 0;
 }
