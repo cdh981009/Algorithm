@@ -32,7 +32,7 @@ int main() {
     int maxIndex = 0;
     int maxVal = -1;
     FOR(i, 0, vec.size()) {
-        int base = (i == 0 ? T : prefixAnd[i - 1]) & (i == vec.size() - T ? 1 : postfixAnd[i + 1]);
+        int base = (i == 0 ? T : prefixAnd[i - 1]) & (i == vec.size() - 1 ? T : postfixAnd[i + 1]);
         int val = (base & vec[i]);
         if (val > maxVal) {
             maxVal = val;
