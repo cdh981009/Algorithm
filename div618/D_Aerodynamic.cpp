@@ -49,7 +49,7 @@ int main() {
             return 0;
         }
     }
-    // cout << "convex hull reflectiviy passed\n";
+    // cout << "convex polygon determination passed\n";
 
     cout << "Yes\n";
     return 0;
