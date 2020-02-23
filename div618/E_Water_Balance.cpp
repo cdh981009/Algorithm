@@ -51,15 +51,21 @@ int main() {
         next++;
     }
     
-    vector<double> answer;
+    vector<double> answer(water.size());
+    FOR(i, 0, water.size()) {
+        answer[i] = (double) water[i];
+    }
+    
     FOR(i, 1, convexHull.size()) {
         int left = convexHull[i - 1];
         int right = convexHull[i];
-        
+        FOR(j, left, right) {
+
+        }
     }
 
     for (auto d : answer) {
-        cout << setprecision(10) << d << " ";
+        cout << fixed << setprecision(10) << d << " ";
     }
     cout << "\n";
     
