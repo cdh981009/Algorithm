@@ -55,6 +55,7 @@ int main() {
         ans.push_front(pair.second);
     }
 
+    cout << ans.size() * len << "\n";
     for (auto ind : ans) {
         cout << str[ind];
     }
