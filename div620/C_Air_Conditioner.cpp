@@ -14,7 +14,8 @@ int main() {
     int tc; cin >> tc;
     while (tc--) {
         int n, initTemp; cin >> n >> initTemp;
-        int tempMin, tempMax = initTemp;
+        int tempMin, tempMax;
+        tempMax = tempMin = initTemp;
         int time = 0;
         bool possible = true;
         while (n--) {
