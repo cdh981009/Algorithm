@@ -20,6 +20,7 @@ int main() {
         while (n--) {
             int visitTime, cMin, cMax; cin >> visitTime >> cMin >> cMax;
             int delta = visitTime - time;
+            time = visitTime;
             tempMax = min(cMax, tempMax + delta);
             tempMin = max(cMin, tempMin - delta);
             if (tempMin > tempMax)
