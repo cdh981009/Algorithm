@@ -4,29 +4,29 @@ using namespace std;
 
 #define FOR(i, a, b) for (int (i) = (a); (i) < (b); ++(i))
 #define FOR_(i, a, b) for (int (i) = (a); (i) <= (b); ++(i))
-#define pil pair<int, long>
+#define ull unsigned long long
+#define pil pair<int, ull>
 #define x first
 #define y second
 
 bool ccw(const pil& p1, const pil& p2, const pil& p3) {
-    pil v1 = {p2.x - p1.x, p2.y - p1.y};
-    pil v2 = {p3.x - p2.x, p3.y - p2.y};
-    return (long long) v1.x * v2.y > (long long) v2.x * v1.y;
+    pil v1 = {p2.x - p1.x, (ull)p2.y - p1.y};
+    pil v2 = {p3.x - p2.x, (ull)p3.y - p2.y};
+    return (ull) v1.x * v2.y > (ull) v2.x * v1.y;
 }
 
 int main() {
-    freopen("input.txt", "r", stdin);
+    // freopen("input.txt", "r", stdin);
     // freopen("output.txt", "w", stdout);
     ios_base::sync_with_stdio(false);
     cin.tie(0);
 
     int len; cin >> len;
-    vector<int> water;
-    vector<long long> prefix;
+    vector<ull> prefix;
+    prefix.push_back(0);
     while (len--) {
         int x; cin >> x;
-        water.push_back(x);
-        prefix.push_back((prefix.empty() ? 0LL : prefix.back()) + x);
+        prefix.push_back(prefix.back() + x);
     }
 
     vector<int> convexHull; // index of convex hull points
@@ -51,23 +51,17 @@ int main() {
         next++;
     }
     
-    vector<double> answer(water.size());
-    FOR(i, 0, water.size()) {
-        answer[i] = (double) water[i];
-    }
-    
+    vector<double> ans(prefix.size());
+
     FOR(i, 1, convexHull.size()) {
-        int left = convexHull[i - 1];
-        int right = convexHull[i];
-        FOR(j, left, right) {
-
-        }
+      int left = convexHull[i - 1];
+      int right = convexHull[i];
+      ull sum = prefix[right] - prefix[left];
+      int size = right - left;
+      FOR_(j, left + 1, right) {
+        cout << fixed << setprecision(10) << (double) sum / size << "\n";
+      }
     }
-
-    for (auto d : answer) {
-        cout << fixed << setprecision(10) << d << " ";
-    }
-    cout << "\n";
     
     return 0;
 }
