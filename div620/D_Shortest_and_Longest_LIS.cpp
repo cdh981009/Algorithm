@@ -32,11 +32,12 @@ int main() {
         for (int i = 0, j = len; i < base.size(); /* */) {
             if (base[i] == -1) {
                 int k = i;
-                while (base[++k] == -1) {/* */}
-                for (int l = k - 1; l >= i; --l) {
+                while (k + 1 < base.size() && base[k + 1] == -1)
+                    ++k;
+                for (int l = k; l >= i; --l) {
                     lis[l] = j--;
                 }
-                i = k;
+                i = k + 1;
             } else {
                 lis[i] = base[i];
                 ++i;
