@@ -19,7 +19,7 @@ int sum(int a, int b) {
     return s;
 }
 
-int power2RoundUp(int x) {
+inline int power2RoundUp(int x) {
     x--;
     x |= x >> 1;
     x |= x >> 2;
