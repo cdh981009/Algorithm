@@ -47,7 +47,7 @@ void update(int r, int c, int x) {
     segTree[r + rows][c + cols] = x;
     // leaf
     for (int i = (c + cols)/2; i >= 1; i /= 2) {
-        segTree[r + rows][i] = segTree[r+rows][i<<1] + segTree[r + rows][(i<<1)|1];
+        segTree[r + rows][i] = segTree[r + rows][i<<1] + segTree[r + rows][(i<<1)|1];
     }
     // non-leaf
     for (int i = (r + rows)/2; i >= 1; i /= 2) {
