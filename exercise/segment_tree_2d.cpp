@@ -51,7 +51,7 @@ void update(int r, int c, int x) {
     }
     // non-leaf
     for (int i = (r + rows)/2; i >= 1; i /= 2) {
-        for (int j = (c + cols)/2; j >= 1; j /= 2) {
+        for (int j = (c + cols); j >= 1; j /= 2) {
             segTree[i][j] = segTree[i<<1][j] + segTree[(i<<1)|1][j];
         }
     }
@@ -96,5 +96,9 @@ int main() {
         }
     }
     init(arr);
+    update(1, 1, 0);
+    cout << query(0, 1, 0, 1) << endl;
+    cout << query(1, 1, 1, 2) << endl;
+    
     return 0;
 }
