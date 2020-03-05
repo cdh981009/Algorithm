@@ -19,6 +19,15 @@ int sum(int a, int b) {
     return s;
 }
 
+void update(int ind, int val) {
+    ind += n;
+    segTree[ind] = val;
+    while (ind > 1) {
+        ind /= 2;
+        segTree[ind] = segTree[2*ind] + segTree[2*ind + 1];
+    }
+}
+
 inline int power2RoundUp(int x) {
     x--;
     x |= x >> 1;
@@ -33,18 +42,10 @@ inline int power2RoundUp(int x) {
 void init(const vector<int>& v) {
     n = power2RoundUp(v.size());
     cout << "size is: " << n << endl;
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; ++i)
         segTree[n + i] = (i < v.size() ? v[i] : 0); 
-    }
-    int l = n;
-    int r = 2*n - 1;
-    while (l > 1) {
-        l /= 2;
-        r /= 2;
-        for (int i = l; i <= r; ++i) {
-            segTree[i] = segTree[2*i] + segTree[2*i + 1];
-        }
-    }
+    for (int i = n - 1; i > 0; --i) 
+        segTree[i] = segTree[2*i] + segTree[2*i + 1];
 }
 
 int main() {
@@ -65,6 +66,6 @@ int main() {
     init(arr);
     cout << "init complete" << endl;
     cout << sum(0, 0) << endl;
-    cout << sum(0, 18) << endl;
+    cout << sum(0, 3) << endl;
     return 0;
 }
