@@ -80,6 +80,7 @@ int distance(int v1, int v2) {
 inline bool validDistance(int d, int k) {
     return (d <= k) && ((k - d) % 2 == 0);
 }
+
 int main() {
     freopen("input.txt", "r", stdin);
     // freopen("output.txt", "w", stdout);
