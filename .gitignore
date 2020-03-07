@@ -1,5 +1,7 @@
 *.[oa]
 *~
+*.html
+*Editorial*/
 Problems - Codeforces.*
 Problems - Codeforces_files/
 *.exe
