@@ -29,14 +29,9 @@ void update(int ind, int val) {
 }
 
 inline int power2RoundUp(int x) {
-    x--;
-    x |= x >> 1;
-    x |= x >> 2;
-    x |= x >> 4;
-    x |= x >> 8;
-    x |= x >> 16;
-    x++;
-    return x;
+    int i;
+    for (i = 1; i < x; i = i << 1);
+    return i;
 }
 
 void init(const vector<int>& v) {
