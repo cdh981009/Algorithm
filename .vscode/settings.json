@@ -12,6 +12,7 @@
         "regex": "cpp",
         "utility": "cpp",
         "valarray": "cpp",
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "vector": "cpp"
     }
 }
