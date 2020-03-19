@@ -45,7 +45,7 @@ int main() {
             consec1 = (y[i] == 0) ? 0 : (consec1+1);
             cntY += (consec1 >= lenY ? 1 : 0);
         }
-        long long += cntX * cntY;
+        ans += cntX * cntY;
     }
     cout << ans << "\n";
     return 0;
