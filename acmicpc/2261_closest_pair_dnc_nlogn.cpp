@@ -61,11 +61,11 @@ int minDist(const vector<Point>& pos, vector<Point>& ySort, vector<Point>& aux, 
     int midPoint = pos[middle].x;
     vector<Point> candidates;
     for (auto i = start; i != end; ++i)
-        if (abs(ySort[i].x - midPoint) < d)
+        if ((ySort[i].x - midPoint)*(ySort[i].x - midPoint) < d)
             candidates.push_back(ySort[i]);
 
     for (auto i = candidates.begin(); i != candidates.end(); ++i) 
-        for (auto j = i + 1; j != candidates.end() && (j->y - i->y < d); ++j)
+        for (auto j = i + 1; j != candidates.end() && ((j->y - i->y)*(j->y - i->y) < d); ++j)
             d = min(d, distance(*i, *j));
 
     return d;
