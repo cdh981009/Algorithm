@@ -35,7 +35,7 @@ int main() {
         cout << 1 << "\n";
     } else {
         long long cnt = modPow(x+1, nm, M);
-        cnt = (nm % 2 == 0 ? (cnt+modPow(even-odd, nm, M)) % M : cnt);
+        cnt = (nm % 2 == 0 ? (cnt+modPow(even-odd, nm, M))*inv(2, M) % M : cnt);
         cout << cnt << "\n";
     }
     
