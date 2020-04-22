@@ -24,12 +24,9 @@ int main() {
     for (int i = n - 1; i >= 0; --i) {
         pair<long long, int> val = {(i == 0 ? 0LL : pre[i - 1].first), i};
         auto it = lower_bound(preSort.begin(), preSort.end(), val);
-        if (it != preSort.end() && it->first == val.first && it->second < lub) {
-            ans += it->second - i;
+        if (it != preSort.end() && it->first == val.first && it->second < lub)
             lub = it->second;
-        } else {
-            ans += lub - i;
-        }
+        ans += lub - i;
     }
     cout << ans << "\n";
 
