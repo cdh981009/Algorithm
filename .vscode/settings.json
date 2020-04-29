@@ -13,6 +13,15 @@
         "utility": "cpp",
         "valarray": "cpp",
         "*.tcc": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "bit": "cpp",
+        "charconv": "cpp",
+        "chrono": "cpp",
+        "complex": "cpp",
+        "functional": "cpp",
+        "istream": "cpp",
+        "limits": "cpp",
+        "memory_resource": "cpp",
+        "numeric": "cpp"
     }
 }
