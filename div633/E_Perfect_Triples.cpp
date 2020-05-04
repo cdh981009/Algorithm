@@ -41,7 +41,7 @@ int main() {
                 second = 0;
                 for (int j = 0; j < 30; ++j) {
                     int bitPair = ((first >> (j*2)) & 3LL);
-                    cout << bitPair << " ";
+                    // cout << bitPair << " ";
                     switch (bitPair) {
                     case 0 :
                         second |= (0LL << (j*2));
@@ -59,7 +59,7 @@ int main() {
                     }
                 }
                 third = first ^ second;
-                cout << first << " " << second << " " << third << endl;
+                // cout << first << " " << second << " " << third << endl;
                 break;
             }
         }
