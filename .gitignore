@@ -11,3 +11,5 @@ Test.txt
 exercise/test.cpp
 acmicpc/Problems/
 test.cpp
+*.out
+*.manifest
