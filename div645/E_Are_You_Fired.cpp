@@ -33,7 +33,7 @@ int main() {
     int i = 0;
     for (int k = n; k >= head; --k, minSum -= x, newVal -= arr[i++]) {
         minSum = min<long long> (minSum, newVal);
-        cout << k << " " << minSum << endl;
+        //cout << k << " " << minSum << endl;
         if (minSum > 0) {
             ans = k;
             break;
