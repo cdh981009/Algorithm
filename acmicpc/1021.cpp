@@ -2,8 +2,8 @@
 
 using namespace std;
 
-#define FOR(i, a, b) for (int (i) = (a); (i) < (b); ++(i))
-#define FOR_(i, a, b) for (int (i) = (a); (i) <= (b); ++(i))
+#define FOR(i, a, b) for (int i = (a); i < (b); ++i)
+#define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
 
 int main() {

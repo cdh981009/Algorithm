@@ -3,8 +3,8 @@
 using namespace std;
 
 #define INF 987654321
-#define FOR(i, a, b) for (int (i) = (a); (i) < (b); ++(i))
-#define FOR_(i, a, b) for (int (i) = (a); (i) <= (b); ++(i))
+#define FOR(i, a, b) for (int i = (a); i < (b); ++i)
+#define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
 using vit = vector<int>::iterator;
 vit binarySearch(const vit& begin,const vit& end, int value) {

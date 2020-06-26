@@ -2,8 +2,8 @@
 
 using namespace std;
 
-#define FOR(i, a, b) for (int (i) = (a); (i) < (b); ++(i))
-#define FOR_(i, a, b) for (int (i) = (a); (i) <= (b); ++(i))
+#define FOR(i, a, b) for (int i = (a); i < (b); ++i)
+#define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 int MOD = 1000;
 vector<vector<int>> I;
 vector<vector<int>> operator*(const vector<vector<int>>& A, const vector<vector<int>>& B) {
