@@ -21,22 +21,25 @@ long long gcd(long long a, long long b) {
 	return gcd(b, a % b);
 }
 
+// 지금까지 state 만큼 숫자를 썼고 그 remainder가 주어졌을 때
+// 남은 숫자들을 붙혀서 앞으로 만들 수 있는 정답의 갯수
 long long count(int state, int remainder) {
-	//cout << bitset<15>(state) << " " << remainder << endl;
 	if (state == (1 << n) - 1)
 		return remainder == 0 ? 1 : 0;
 	long long& ref = dp[state][remainder];
-	if (ref != -1) return ref;
+	if (ref != -1)
+		return ref;
 	ref = 0;
 	FOR(i, 0, n) {
-		if (state & (1 << i)) continue;
+		if (state & (1 << i))
+			continue;
 		int r = remainder;
-		r *= powModCache[r][arr[i].size()];
+		r = powModCache[r][arr[i].size()];
 		r += modCache[i];
 		r %= k;
-		// cout << i << " " << bitset<15>(state) << " " << newRemainder << endl;
 		ref += count(state | (1 << i), r);
 	}
+	//cout << bitset<15>(state) << " " << remainder << " " << ref << endl;
 	return ref;
 }
 
@@ -52,6 +55,7 @@ int main() {
 	FOR(i, 0, n) {
 		string x; cin >> x;
 		arr[i] = x;
+		cout << x << endl;
 		denom *= (i + 1);
 	}
 	cin >> k;
@@ -74,12 +78,13 @@ int main() {
 			r *= 10;
 			r %= k;
 			powModCache[i][j] = r;
-			cout << i << " " << j << " " << r << endl;
+			//cout << i << " " << j << " " << r << endl;
 		}
 	}
 
 	long long cnt = count(0, 0);
 	long long diviser = gcd(cnt, denom);
+	//cout << cnt << " " << denom << endl;
 	cout << cnt / diviser << "/" << denom / diviser << "\n";
 	
     return 0;
