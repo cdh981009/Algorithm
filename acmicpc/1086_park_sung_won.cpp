@@ -55,7 +55,6 @@ int main() {
 	FOR(i, 0, n) {
 		string x; cin >> x;
 		arr[i] = x;
-		cout << x << endl;
 		denom *= (i + 1);
 	}
 	cin >> k;
