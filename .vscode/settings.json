@@ -23,6 +23,11 @@
         "limits": "cpp",
         "memory_resource": "cpp",
         "numeric": "cpp",
-        "ratio": "cpp"
+        "ratio": "cpp",
+        "optional": "cpp",
+        "tuple": "cpp",
+        "forward_list": "cpp",
+        "fstream": "cpp",
+        "streambuf": "cpp"
     }
 }
