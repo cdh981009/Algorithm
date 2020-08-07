@@ -28,6 +28,7 @@ void unite(int x, int y) {
     if (sz[x] < sz[y]) swap(x, y);
 
     root[y] = x;
+    sz[x] += sz[y];
 }
 
 int main() {
