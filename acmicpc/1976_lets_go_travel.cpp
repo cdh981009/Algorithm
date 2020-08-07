@@ -22,13 +22,21 @@ bool same(int x, int y) {
 }
 
 void unite(int x, int y) {
-    if (same(x, y))
+    x = find(x);
+    y = find(y);
+
+    if (x == y)
         return;
-    
-    if (sz[x] < sz[y]) swap(x, y);
+
+    if (sz[x] < sz[y])
+        swap(x, y);
 
     root[y] = x;
     sz[x] += sz[y];
+}
+
+int size(int x) {
+    return sz[find(x)];
 }
 
 int main() {
