@@ -12,13 +12,13 @@ int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);
 
-    
     int tc; cin >> tc;
     while (tc--) {
         int n, m; cin >> n >> m;
         FOR(i, 0, m) {
             int x, y; cin >> x >> y;
         }
-        cout << n-1;
+        cout << n-1 << "\n";
     }
+    return 0;
 }
