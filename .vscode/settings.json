@@ -28,6 +28,8 @@
         "tuple": "cpp",
         "forward_list": "cpp",
         "fstream": "cpp",
-        "streambuf": "cpp"
+        "streambuf": "cpp",
+        "iomanip": "cpp",
+        "type_traits": "cpp"
     }
 }
