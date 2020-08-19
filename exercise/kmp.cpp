@@ -8,19 +8,14 @@ using namespace std;
 vector<int> getPi(const string& p) {
     int m = p.size();
     vector<int> pi(m, 0);
-    int begin = 1, match = 0;
-    while (begin + match < m) {
-        if (p[begin + match] == p[match]) {
+    
+    int match = 0;
+    FOR(i, 1, m) {
+        while (match > 0 && p[i] != p[match])
+            match = pi[match-1];
+        if (p[i] == p[match])
             ++match;
-            pi[begin + match - 1] = match;
-        } else {
-            if (match == 0) {
-                ++begin;
-            } else {
-                begin += match - pi[match - 1];
-                match = pi[match - 1];
-            }
-        }
+        pi[i] = match;
     }
     return pi;
 }
@@ -31,21 +26,15 @@ vector<int> kmp(const string& t, const string& p) {
     vector<int> pi = getPi(p);
 
     vector<int> ans;
-    int begin = 0, match = 0;
-    while (begin <= n - m) {
-        if (match < m && t[begin + match] == p[match]) {
+    int match = 0;
+    FOR(i, 0, m) {
+        while (match > 0 && t[i] != p[match])
+            match = pi[match - 1];
+        if (t[i] == p[match])
             ++match;
-            if (match == m)
-                ans.push_back(begin);
-        } else {
-            if (match == 0) {
-                ++begin;
-            } else {
-                // p[0...match-1] == t[begin...match-1];
-                // pi[match-1] : p[0...match-1]의 접두사도 되고 접미사도 되는 최대 길이
-                begin += match - pi[match - 1];
-                match = pi[match - 1];
-            }
+        if (match == m) {
+            ans.push_back(i - m + 1);
+            match = pi[match - 1];
         }
     }
     return ans;
