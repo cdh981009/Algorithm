@@ -30,6 +30,7 @@
         "fstream": "cpp",
         "streambuf": "cpp",
         "iomanip": "cpp",
-        "type_traits": "cpp"
+        "type_traits": "cpp",
+        "memory": "cpp"
     }
 }
