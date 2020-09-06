@@ -72,6 +72,8 @@ int main(int argc, char** argv) {
             // i > j 일때
             // res += (rPreSum[i - 1] - (j > 0 ? rPreSum[j - 1] : 0LL)) - (preSum[i] - (j > 0 ? preSum[j - 1] : 0LL));
             long long res;
+            //res = preSum[n - 1] - abs(a[i] - b[i]);
+            //ans = min<long long>(ans, res);
             if (i > 0) {
                 res = preSum[n - 1] + rPreSum[i - 1] - preSum[i];
                 res += rMinDiff[i - 1];
