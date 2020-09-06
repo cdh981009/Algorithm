@@ -36,7 +36,7 @@ int main() {
         edge[u].push_back(v);
         edge[v].push_back(u);
     }
-    depth[1] = 1;
+    //depth[1] = 1;
     dfs(1);
     FOR_(i, 1, logN) {
         FOR_(j, 1, n) {
