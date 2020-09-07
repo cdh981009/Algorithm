@@ -64,13 +64,11 @@ int main() {
             ans = u;
         } else {
             int step = logN;
-            for (int step = logN; /* */; step /= 2) {
+            for (int step = logN; step >= 0; step -= 1) {
                 while (sparseAncestor[v][step] != sparseAncestor[u][step]) {
                     v = sparseAncestor[v][step];
                     u = sparseAncestor[u][step];
                 }
-                if (step == 0)
-                    break;
             }
             ans = sparseAncestor[v][0];
         }
