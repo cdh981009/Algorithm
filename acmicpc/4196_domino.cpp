@@ -82,8 +82,6 @@ int main() {
             }
         }
 
-        // make undirected graph of component nodes
-        // to count number of weakly connected components
         int ans = componentCnt;
         FOR_(i, 1, n) {
             for (auto next : edges[i]) {
