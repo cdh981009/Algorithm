@@ -54,7 +54,7 @@ void p(int a, int b) {
 }
 
 int main() {
-    freopen("input.txt", "r", stdin);
+    //freopen("input.txt", "r", stdin);
     //freopen("output.txt", "w", stdout);
     ios_base::sync_with_stdio(false);
     cin.tie(0);
@@ -62,25 +62,30 @@ int main() {
     int n, m;
     cin >> n;
     vector<long long> arr(n);
+    vector<long long> diff(n);
     FOR(i, 0, n) {
         long long x;
         cin >> x;
-        arr[i] = x - (i > 0 ? arr[i - 1] : 0);
+        arr[i] = x;
+        diff[i] = x - (i > 0 ? arr[i - 1] : 0);
     }
 
-    initTree(arr);
+    initTree(diff);
 
     cin >> m;
     FOR(i, 0, m) {
-        int q; cin >> q;
+        int q;
+        cin >> q;
         if (q == 1) {
-            long long a, b, c; cin >> a >> b >> c;
+            long long a, b, c;
+            cin >> a >> b >> c;
             pointUpdate(a - 1, c);
             if (b <= n - 1)
                 pointUpdate(b, -c);
         } else {
-            long long a; cin >> a;
-            cout << rangeQuery(0, a - 1) - 1 << "\n";
+            long long a;
+            cin >> a;
+            cout << rangeQuery(0, a - 1) << "\n";
         }
     }
     return 0;
