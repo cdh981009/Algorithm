@@ -18,6 +18,9 @@ struct interval {
     int fullLen = 0;
 } segTree[N];
 
+vector<int> cy;
+vector<int>::iterator u;
+
 struct line {
     int x;
     int y1;
@@ -70,8 +73,6 @@ int main() {
 
     vector<line> lines;
     lines.reserve(2 * n);
-
-    vector<int> cy;
     cy.reserve(2 * n);
 
     FOR(i, 0, n) {
@@ -84,23 +85,21 @@ int main() {
     }
 
     // 1. 모든 y좌표에 대해 정렬 후 좌표압축을 한다
-    map<int, int> yDict;
     sort(cy.begin(), cy.end());
-    auto u = unique(cy.begin(), cy.end());
-    for (auto i = cy.begin(); i != u; ++i)
-        yDict[*i] = yDict.size();
+    u = unique(cy.begin(), cy.end());
+
     // yi가 출발점이고 yj가 도착점이면 그 범위는 [i, j - 1]이다
-    
     for (auto& l : lines) {
-        l.yInd1 = yDict[l.y1];
-        l.yInd2 = yDict[l.y2];
+        l.yInd1 = lower_bound(cy.begin(), u, l.y1) - cy.begin();
+        l.yInd2 = lower_bound(cy.begin(), u, l.y2) - cy.begin();
     }
     
     // init tree
-    for (::n = 1; ::n < yDict.size() - 1; ::n <<= 1)
+    int s = u - cy.begin() - 1;
+    for (::n = 1; ::n < s; ::n <<= 1)
         ;
     for (int i = 0; i < ::n; ++i) {
-        segTree[i + ::n].fullLen = (i < yDict.size() - 1 ? cy[i + 1] - cy[i] : 0 /*default vaule*/);
+        segTree[i + ::n].fullLen = (i < s ? cy[i + 1] - cy[i] : 0 /*default vaule*/);
     }
     for (int i = ::n - 1; i >= 1; --i) {
         segTree[i].fullLen = segTree[2 * i].fullLen + segTree[2 * i + 1].fullLen;
