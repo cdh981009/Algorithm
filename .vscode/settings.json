@@ -32,6 +32,7 @@
         "iomanip": "cpp",
         "type_traits": "cpp",
         "memory": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "deque": "cpp"
     }
 }
