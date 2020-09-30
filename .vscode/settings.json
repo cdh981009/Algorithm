@@ -33,6 +33,7 @@
         "type_traits": "cpp",
         "memory": "cpp",
         "string": "cpp",
-        "deque": "cpp"
+        "deque": "cpp",
+        "cmath": "cpp"
     }
 }
