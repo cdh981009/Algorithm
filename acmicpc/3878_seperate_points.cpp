@@ -185,29 +185,21 @@ int main() {
         // 2. contain test
         if (possible) {
             auto test = [](const vector<Vector2>& hull1, const vector<Vector2>& hull2) {
-                bool contain = false;
+                
+                auto& p = hull1[0];
+                int match = 0;
+                
+                FOR(j, 0, hull2.size()) {
+                    auto& q1 = hull2[j];
+                    auto& q2 = hull2[(j + 1) % hull2.size()];
 
-                FOR(i, 0, hull1.size()) {
-                    auto& p = hull1[0];
-                    int match = 0;
-                    
-                    FOR(j, 0, hull2.size()) {
-                        auto& q1 = hull2[j];
-                        auto& q2 = hull2[(j + 1) % hull2.size()];
-
-                        int ccw = cross(q2 - q1, p - q1);
-                        if (ccw > 0 || (ccw == 0 && dot(q2 - q1, p - q1) > 0)) {
-                            match++;
-                        }
-                    }
-
-                    if (match == hull2.size()) {
-                        contain = true;
-                        break;
+                    int ccw = cross(q2 - q1, p - q1);
+                    if (ccw > 0 || (ccw == 0 && dot(q2 - q1, p - q1) > 0)) {
+                        match++;
                     }
                 }
 
-                return contain;
+                return match == hull2.size();
             };
 
             possible = !test(hull1, hull2) && !test(hull2, hull1); 
