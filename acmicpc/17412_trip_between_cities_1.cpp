@@ -11,69 +11,73 @@ using namespace std;
 constexpr int N = 400;
 int n, p;
 int cap[N][N];
+vector<int> adj[N];
 int flow[N][N];
-bool visited[N];
-int parent[N];
+int level[N];
+
 const int SRC = 0;
 const int SINK = 1;
 
-int fordFulkerson() {
-    int totalFlow = 0;
+// dinic's algorithm
+inline int r(int a, int b) {
+    return cap[a][b] - flow[a][b];
+}
 
-    while (true) {
-        memset(visited, false, sizeof(bool) * n);
-        memset(parent, -1, sizeof(int) * n);
-        queue<int> qu;
-        qu.push(SRC); // source;
-        parent[SRC] = SRC;
-        visited[SRC] = true;
+// generate level graph
+bool bfs() {
+    memset(level, -1, sizeof(int) * N);
 
-        // BFS
-        while (!qu.empty()) {
-            int curr = qu.front();
-            qu.pop();
+    queue<int> q;
+    q.push(SRC);
+    level[SRC] = 0;
 
-            if (curr == SINK) { // sink
-                break;
-            }
+    while (!q.empty()) {
+        int curr = q.front();
+        q.pop();
 
-            FOR(i, 0, n) {
-                if (!visited[i] && cap[curr][i] - flow[curr][i] > 0) { // not saturated
-                    visited[i] = true;
-                    parent[i] = curr;
-                    qu.push(i);
-                }
-            }
-        }
-
-        if (parent[SINK] == -1) { // can't find path
+        if (curr == SINK)
             break;
-        }
-
-        int curr;
-        int minFlow;
         
-        // back track, find bottleneck edge
-        curr = SINK;
-        minFlow = INF;
-        while (curr != SRC) {
-            int p = parent[curr];
-            int r = cap[p][curr] - flow[p][curr];
-            minFlow = min(minFlow, r);
-            curr = p;
+        for (auto next : adj[curr]) {
+            if (level[next] == -1 && r(curr, next) > 0) {
+                level[next] = level[curr] + 1;
+                q.push(next);
+            }
         }
-
-        // spill the flow
-        curr = SINK;
-        while (curr != SRC) {
-            int p = parent[curr];
-            flow[p][curr] += minFlow;
-            flow[curr][p] -= minFlow;
-            curr = p;
-        }
-        totalFlow += minFlow;
     }
 
+    if (level[SINK] == -1)
+        return false;
+    return true;
+}
+
+// augment graph with blocking flow
+int dfs(int curr, int cap) {
+    if (curr == SINK) {
+        return cap;
+    }
+
+    int f = 0;
+    for (auto next : adj[curr]) {
+        if (level[next] == level[curr] + 1 && r(curr, next) > 0) {
+            int c = dfs(next, min(cap, r(curr, next)));
+            if (c > 0) {
+                f += c;
+                cap -= c;
+                flow[curr][next] += c;
+                flow[next][curr] -= c;
+            }
+        }
+    }
+
+    return f;
+}
+
+int dinic() {
+    int totalFlow = 0;
+    while (bfs()) {
+        totalFlow += dfs(SRC, INF);
+    }
     return totalFlow;
 }
 
@@ -84,13 +88,20 @@ int main() {
     cin.tie(0);
 
     cin >> n >> p;
+
+    auto addEdge = [](int a, int b, int c) {
+        cap[a][b] = c;
+        adj[a].push_back(b);
+        adj[b].push_back(a);
+    };
+
     FOR(i, 0, p) {
         int s, d; cin >> s >> d;
         s--;
         d--;
-        cap[s][d] = 1;
+        addEdge(s, d, 1);
     }
 
-    cout << fordFulkerson() << endl;
+    cout << dinic() << endl;
     return 0;
 }
