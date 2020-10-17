@@ -70,6 +70,8 @@ int dfs(int curr, int cap) {
         }
     }
 
+    if (f == 0)
+        level[curr] = -1;
     return f;
 }
 
