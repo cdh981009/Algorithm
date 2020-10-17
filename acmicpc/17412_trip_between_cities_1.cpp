@@ -10,19 +10,15 @@ using namespace std;
 
 constexpr int N = 400;
 int n, p;
-int cap[N][N];
-vector<int> adj[N];
 int flow[N][N];
+vector<int> edge[N];
 int level[N];
+int cache[N];
 
 const int SRC = 0;
 const int SINK = 1;
 
 // dinic's algorithm
-inline int r(int a, int b) {
-    return cap[a][b] - flow[a][b];
-}
-
 // generate level graph
 bool bfs() {
     memset(level, -1, sizeof(int) * N);
@@ -37,9 +33,9 @@ bool bfs() {
 
         if (curr == SINK)
             break;
-        
-        for (auto next : adj[curr]) {
-            if (level[next] == -1 && r(curr, next) > 0) {
+
+        for (auto next : edge[curr]) {
+            if (level[next] == -1 && flow[curr][next] > 0) {
                 level[next] = level[curr] + 1;
                 q.push(next);
             }
@@ -57,26 +53,30 @@ int dfs(int curr, int cap) {
         return cap;
     }
 
-    int f = 0;
-    for (auto next : adj[curr]) {
-        if (level[next] == level[curr] + 1 && r(curr, next) > 0) {
-            int c = dfs(next, min(cap, r(curr, next)));
+    for (int i = cache[curr]; i < edge[curr].size(); ++i) {
+        cache[curr] = i;
+        int next = edge[curr][i];
+
+        if (level[next] == level[curr] + 1 && flow[curr][next] > 0) {
+            int c = dfs(next, min(cap, flow[curr][next]));
             if (c > 0) {
-                f += c;
-                cap -= c;
-                flow[curr][next] += c;
-                flow[next][curr] -= c;
+                flow[curr][next] -= c;
+                flow[next][curr] += c;
+                return c;
             }
         }
     }
 
-    return f;
+    return 0;
 }
 
 int dinic() {
     int totalFlow = 0;
     while (bfs()) {
-        totalFlow += dfs(SRC, INF);
+        memset(cache, 0, sizeof(int) * N);
+        int d;
+        while (d = dfs(SRC, INF))
+            totalFlow += d;
     }
     return totalFlow;
 }
@@ -90,13 +90,14 @@ int main() {
     cin >> n >> p;
 
     auto addEdge = [](int a, int b, int c) {
-        cap[a][b] = c;
-        adj[a].push_back(b);
-        adj[b].push_back(a);
+        flow[a][b] = c;
+        edge[a].push_back(b);
+        edge[b].push_back(a);
     };
 
     FOR(i, 0, p) {
-        int s, d; cin >> s >> d;
+        int s, d;
+        cin >> s >> d;
         s--;
         d--;
         addEdge(s, d, 1);
