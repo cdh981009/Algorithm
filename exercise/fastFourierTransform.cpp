@@ -34,11 +34,12 @@ void constructIndexTable() {
     }
 }
 
-vector<C> aux(N);
 void FFT(vector<C>& v, bool invert = false) {
     // 재배열
-    FOR(i, 0, N)
-    aux[i] = v[indexTable[i]];
+    FOR(i, 0, N) {
+        if (i < indexTable[i])
+            swap(v[i], v[indexTable[i]]);
+    }
 
     int inv = invert ? -1 : 1;
     for (int m = 2; m <= N; m <<= 1) {
@@ -46,19 +47,16 @@ void FFT(vector<C>& v, bool invert = false) {
         for (int i = 0; i < N; i += m) {
             C w = C(1, 0);
             for (int k = 0; k < m / 2; ++k) {
-                C even = aux[i + k];
-                C odd = aux[i + k + m / 2] * w;
+                C even = v[i + k];
+                C odd = v[i + k + m / 2] * w;
 
                 v[i + k] = even + odd;
                 v[i + k + m / 2] = even - odd;
                 w *= e;
             }
         }
-
-        swap(aux, v);
     }
 
-    swap(aux, v);
     if (invert)
         for (int i = 0; i < N; ++i)
             v[i] /= N;
