@@ -23,7 +23,7 @@ vector<int> getZ(const string& s) {
                 j++;
             }
         } else if (i + z[i - x] <= y) {
-            z[i] = min(z[i - x], (int)s.size() - i);
+            z[i] = z[i - x];
         } else /* if (i + z[i - x] > y) */ {
             z[i] = y - i + 1;
             int j = y + 1;
