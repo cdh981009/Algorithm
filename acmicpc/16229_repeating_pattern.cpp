@@ -16,7 +16,7 @@ vector<int> getZ(const vector<char>& str) {
     FOR(i, 1, str.size()) {
         if (i > y) {
             int j = 0;
-            while (i + j < str.size() && str[i + j] == str[j]) {
+            while (str[i + j] == str[j]) {
                 j++;
                 z[i]++;
             }
@@ -26,7 +26,7 @@ vector<int> getZ(const vector<char>& str) {
             z[i] = y - i + 1;
 
             int j = y + 1;
-            while (j < str.size() && str[j] == str[j - i]) {
+            while (str[j] == str[j - i]) {
                 j++;
                 z[i]++;
             }
@@ -49,12 +49,13 @@ int main() {
 
     int n, k;
     cin >> n >> k;
-    vector<char> str(n);
+    vector<char> str(n + 1);
     FOR(i, 0, n) {
         char c;
         cin >> c;
         str[i] = c;
     }
+    str[n] = '#';
 
     if (k >= n) {
         cout << n << '\n';
