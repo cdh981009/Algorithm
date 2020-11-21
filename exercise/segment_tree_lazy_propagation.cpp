@@ -1,124 +1,134 @@
+// 10999: 구간 합 구하기 2
+// https://www.acmicpc.net/problem/10999
 #include <bits/stdc++.h>
 
 using namespace std;
 
-#define FOR(i, a, b) for (int (i) = (a); (i) < (b); ++(i))
-#define FOR_(i, a, b) for (int (i) = (a); (i) <= (b); ++(i))
-static const int N = 1 << 20;
-int n; // 실제 segTree는 [0, 2*n - 1]
-int segTree[N];
-int lazy[N] = {0, };
+#define INF 987654321
+#define FOR(i, a, b) for (int i = (a); i < (b); ++i)
+#define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
-struct SegTree {
-    // max seg tree에서 lazy가 0 이 아니라면 node가 나타내는 범위 전체에 addition이 되었음을 의미한다
-    // 즉 대푯값 (범위 max값)에 lazy[node] 만큼 더해줘야 한다.
+constexpr int N = (1 << 21);
+int n;
 
-    void update_lazy(int node, int nodeLeft, int nodeRight) {
-        if (lazy[node] != 0) {
-            int l = lazy[node];
-            segTree[node] += l;
-            if (nodeLeft != nodeRight) {
-                lazy[node*2] += l;
-                lazy[node*2+1] += l;
-            }
-            lazy[node] = 0;
+long long segTree[N];
+long long lazy[N];
+
+void initTree(const vector<long long>& arr) {
+    for (n = 1; n < arr.size(); n <<= 1)
+        ;
+    // segTree size is 2 * n, 1-based
+    // leaf init
+    FOR(i, 0, n)
+    segTree[n + i] = (i < arr.size() ? arr[i] : 0 /* default value */);
+    for (int i = n - 1; i >= 1; --i)
+        segTree[i] = segTree[2 * i] + segTree[2 * i + 1];
+}
+
+void lazyUpdate(int node, int nodeLeft, int nodeRight) {
+    segTree[node] += lazy[node] * (nodeRight - nodeLeft + 1);
+
+    if (nodeLeft != nodeRight) {
+        lazy[2 * node] += lazy[node];
+        lazy[2 * node + 1] += lazy[node];
+    }
+
+    lazy[node] = 0;
+}
+
+void rangeUpdate(const int left, const int right, const long long x, int node, int nodeLeft, int nodeRight) {
+    lazyUpdate(node, nodeLeft, nodeRight);
+
+    if (right < nodeLeft || nodeRight < left) {
+        // node's range and query range do not overlap
+        /* do nothing */
+        return;
+    }
+
+    if (left <= nodeLeft && nodeRight <= right) {
+        // node's range is completely inside query range
+        segTree[node] += x * (nodeRight - nodeLeft + 1);
+
+        if (nodeLeft != nodeRight) {
+            lazy[2 * node] += x;
+            lazy[2 * node + 1] += x;
         }
-    }
-    // node가 표현하는 범위가 nodeLeft, nodeRight일 때
-    // 이 범위와 left, right의 교집합에서 query result를 구한다.
-    // top-down
-    int query(int left, int right, int node, int nodeLeft, int nodeRight) {
-        update_lazy(node, nodeLeft, nodeRight);
-        // 아예 겹치지 않을 떄
-        if (right < nodeLeft || left > nodeRight)
-            return INT32_MIN;
-        // 현재 노드가 나타내는 범위 [nodeLeft, nodeRight]가 [left, right]에 완전히 들어갈 때
-        if (nodeLeft >= left && nodeRight <= right) {
-            return segTree[node];
-        }
-        // 현재 노드가 나타내는 범위 [nodeLeft, nodeRight]가 더 크거나, 범위가 겹쳐있을 때
-        int mid = (nodeLeft + nodeRight)/2;
-        return max(query(left, right, node*2, nodeLeft, mid),
-                   query(left, right, node*2+1, mid+1, nodeRight));
+        return;
     }
 
-    int query(int left, int right) {
-        return query(left, right, 1, 0, n-1);
+    // node's range and query range partially overlaps,
+    // or query range is inside node's range
+
+    int mid = (nodeLeft + nodeRight) / 2;
+    rangeUpdate(left, right, x, 2 * node, nodeLeft, mid);
+    rangeUpdate(left, right, x, 2 * node + 1, mid + 1, nodeRight);
+
+    segTree[node] = segTree[2 * node] + segTree[2 * node + 1];
+    return;
+}
+
+void rangeUpdate(const int left, const int right, const long long x) {
+    rangeUpdate(left, right, x, 1, 0, n - 1);
+}
+
+long long rangeQuery(const int left, const int right, int node, int nodeLeft, int nodeRight) {
+    lazyUpdate(node, nodeLeft, nodeRight);
+
+    if (right < nodeLeft || nodeRight < left) {
+        // node's range and query range do not overlap
+        return 0;
     }
 
-    // lazy propagation
-    // range addition version
-    void range_update(int left, int right, int val, int node, int nodeLeft, int nodeRight) {
-        update_lazy(node, nodeLeft, nodeRight);
-        // 아예 겹치지 않을 떄
-        if (right < nodeLeft || left > nodeRight)
-            return;
-        // [left, right]가 [nodeLeft, nodeRight]에 완전히 들어갈 때
-        if (nodeLeft >= left && nodeRight <= right) {
-            // max 값도 +val 될 것이다
-            segTree[node] += val;
-            if (nodeLeft != nodeRight) {
-                lazy[node*2] += val;
-                lazy[node*2+1] += val;
-            }
-            return;
-        }
-        // [nodeLeft, nodeRight]가 더 크거나, 범위가 겹쳐있을 때
-        int mid = (nodeLeft + nodeRight)/2;
-        range_update(left, right, val, node*2, nodeLeft, mid);
-        range_update(left, right, val, node*2+1, mid+1, nodeRight);
-        // 자식중 일부만 값이 바뀌었을 수 있음
-        segTree[node] = max(segTree[node*2], segTree[node*2+1]);
+    if (left <= nodeLeft && nodeRight <= right) {
+        // node's range is completely inside query range
+        return segTree[node];
     }
 
-    void range_update(int left, int right, int val) {
-        range_update(left, right, val, 1, 0, n-1);
-    }
+    // node's range and query range partially overlaps,
+    // or query range is inside node's range
+    int mid = (nodeLeft + nodeRight) / 2;
+    return rangeQuery(left, right, 2 * node, nodeLeft, mid) +
+           rangeQuery(left, right, 2 * node + 1, mid + 1, nodeRight);
+}
 
-    static inline int power2RoundUp(int x) {
-        int i;
-        for (i = 1; i < x; i = i << 1);
-        return i;
-    }
-
-    void init(const vector<int>& v) {
-        n = power2RoundUp(v.size());
-        cout << "size is: " << n << endl;
-        for (int i = 0; i < n; ++i)
-            segTree[n + i] = (i < v.size() ? v[i] : INT32_MIN); 
-        for (int i = n - 1; i > 0; --i) 
-            segTree[i] = max(segTree[2*i], segTree[2*i + 1]);
-    }
-
-    SegTree(const vector<int>& v) {
-        init(v);
-    }
-};
+long long rangeQuery(const int left, const int right) {
+    return rangeQuery(left, right, 1, 0, n - 1);
+}
 
 int main() {
     freopen("input.txt", "r", stdin);
-    // freopen("output.txt", "w", stdout);
+    //freopen("output.txt", "w", stdout);
     ios_base::sync_with_stdio(false);
     cin.tie(0);
 
-    int len; cin >> len;
-    cout << "len is " << len << endl;
-    vector<int> arr(len);
-    int i = 0;
-    while (len--) {
-        int x; cin >> x;
-        arr[i++] = x;
+    int n, m, k;
+    cin >> n >> m >> k;
+
+    vector<long long> arr;
+    arr.reserve(n);
+
+    FOR(i, 0, n) {
+        long long x;
+        cin >> x;
+        arr.push_back(x);
     }
 
-    SegTree tree(arr);
-    cout << "init complete" << endl;
-    cout << tree.query(0, 0) << endl;
-    cout << tree.query(0, 3) << endl;
-    tree.range_update(0, 1, 5);
-    tree.range_update(1, 1, 2);
-    cout << tree.query(0, 0) << endl;
-    cout << tree.query(1, 1) << endl;
-    cout << tree.query(0, 3) << endl;
-    cout << tree.query(2, 3) << endl;
+    initTree(arr);
+
+    FOR(i, 0, m + k) {
+        int type;
+        cin >> type;
+        int s, e;
+        cin >> s >> e;
+        s--;
+        e--;
+        if (type == 1) {
+            long long x;
+            cin >> x;
+            rangeUpdate(s, e, x); // not intended
+        } else {
+            cout << rangeQuery(s, e) << '\n';
+        }
+    }
     return 0;
 }
