@@ -155,41 +155,19 @@ int main() {
         arr[i] = unsafePointQuery(i);
     }
 
-    auto f1 = [](const pair<int, int>& l, const pair<int, int>& r) -> bool {
-        return l.first > r.first;
-    };
-    auto f2 = [](const pair<int, int>& l, const pair<int, int>& r) -> bool {
-        return l.second > r.second;
-    };
-    priority_queue<pair<int, int>, vector<pair<int, int>>, decltype(f1)> lineIn(f1);
-    priority_queue<pair<int, int>, vector<pair<int, int>>, decltype(f2)> lineOut(f2);
-
-    FOR(i, 0, lines.size()) {
-        lineIn.push(lines[i]);
-    }
-
+    sort(lines.begin(), lines.end());
+    int lineInd = 0;
     int ans = 0;
     FOR(i, 0, yToIndex.size()) {
         // set i as one of the two horizontal line, find optimal pair.
 
         // two pointer-like approach
         // Amortized time complexity is O(n log n)
-        while (!lineIn.empty()) {
-            auto top = lineIn.top();
-            if (top.first <= i) {
-                lineIn.pop();
-                lineOut.push(top);
-                rangeUpdate(top.first, top.second, -1);
-            } else {
-                break;
-            }
-        }
-
-        while (!lineOut.empty()) {
-            auto top = lineOut.top();
-            if (top.second < i) {
-                lineOut.pop();
-                rangeUpdate(top.first, top.second, +1);
+        while (lineInd < lines.size()) {
+            const auto& l = lines[lineInd];
+            if (l.first <= i) {
+                lineInd++;
+                rangeUpdate(l.first, l.second, -1);
             } else {
                 break;
             }
