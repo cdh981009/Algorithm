@@ -9,7 +9,7 @@ using namespace std;
 #define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
 int main() {
-    freopen("input.txt", "r", stdin);
+    //freopen("input.txt", "r", stdin);
     //freopen("output.txt", "w", stdout);
     ios_base::sync_with_stdio(false);
     cin.tie(0);
@@ -49,43 +49,37 @@ int main() {
     vector<int> cnt(1e6 + 1, 0);
 
     vector<int> ansVec(q);
-    int ans, l, r;
-    l = r = 0;
+    int l = 0;
+    int r = 0;
+    int ans = 1;
     cnt[arr[0]] = 1;
-    ans = 1;
+
+    auto add = [&](int ind) {
+        cnt[arr[ind]]++;
+        if (cnt[arr[ind]] == 1) {
+            ans += 1;
+        }
+    };
+
+    auto del = [&](int ind) {
+        cnt[arr[ind]]--;
+        if (cnt[arr[ind]] == 0) {
+            ans -= 1;
+        }
+    };
+
     for (const auto& p : queries) {
         int s = p.first.first;
         int e = p.first.second;
 
-        while (r < e) {
-            r++;
-            cnt[arr[r]]++;
-            if (cnt[arr[r]] == 1) {
-                ans += 1;
-            }
-        }
-        while (r > e) {
-            cnt[arr[r]]--;
-            if (cnt[arr[r]] == 0) {
-                ans -= 1;
-            }
-            r--;
-        }
-
-        while (l < s) {
-            cnt[arr[l]]--;
-            if (cnt[arr[l]] == 0) {
-                ans -= 1;
-            }
-            l++;
-        }
-        while (l > s) {
-            l--;
-            cnt[arr[l]]++;
-            if (cnt[arr[l]] == 1) {
-                ans += 1;
-            }
-        }
+        while (r < e)
+            add(++r);
+        while (r > e)
+            del(r--);
+        while (l < s)
+            del(l++);
+        while (l > s)
+            add(--l);
 
         ansVec[p.second] = ans;
     }
