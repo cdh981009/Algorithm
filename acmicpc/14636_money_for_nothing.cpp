@@ -36,11 +36,12 @@ void work(int s, int e, int p, int q) {
     long long ans = -INF;
     int opt = q;
 
-    FOR_(k, p, q) {
+    for (int k = q; k >= p; --k) {
         if (consumer[k].second - producer[mid].second < 0)
-            continue;
+            break;
+
         long long res = (long long)(consumer[k].second - producer[mid].second) * (consumer[k].first - producer[mid].first);
-        if (res > ans) {
+        if (res >= ans) {
             ans = res;
             opt = k;
         }
