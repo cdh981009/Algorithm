@@ -4,30 +4,31 @@
 
 using namespace std;
 
-#define INF INT64_MAX
 #define FOR(i, a, b) for (int i = (a); i < (b); ++i)
 #define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
-constexpr int N = 5010;
+constexpr int N = 5001;
+
+int tc, n;
 
 int sum[N];
-int pos[N][N];
-long long solve[N][N];
+int pos[N];
+int solve[N][N];
 
 int main() {
     freopen("input.txt", "r", stdin);
-    //freopen("output.txt", "w", stdout);
-    ios_base::sync_with_stdio(false);
-    cin.tie(0);
+    // freopen("output.txt", "w", stdout);
+    // ios_base::sync_with_stdio(false);
+    // cin.tie(0);
 
-    int tc; cin >> tc;
+    scanf("%d", &tc);
 
     while (tc--) {
-        int n; cin >> n;
+        scanf("%d", &n);
 
         FOR_(i, 1, n) {
-            int x; cin >> x;
-            sum[i] = sum[i - 1] + x;
+            scanf("%d", &sum[i]);
+            sum[i] += sum[i - 1];
         }
         
         // knuth optimization technique
@@ -40,31 +41,30 @@ int main() {
         // base
         FOR_(i, 1, n - 1) {
             solve[i][i + 1] = sum[i + 1] - sum[i - 1];
-            pos[i][i + 1] = i;
+            pos[i] = i;
         }
 
-        FOR_(l, 2, n) { // round
-            // round for length of i
+        FOR_(l, 2, n - 1) {
             FOR_(i, 1, n - l) {
                 int j = i + l;
+                int ans = INT32_MAX;
+                int opt;
 
-                long long& ref = solve[i][j];
-                int& opt = pos[i][j];
-                ref = INF;
-                
-                FOR_(p, pos[i][j - 1], pos[i + 1][j]) {
-                    long long res = solve[i][p] + solve[p + 1][j];
-                    if (res < ref) {
-                        ref = res;
+                for (int p = pos[i]; p <= pos[i + 1]; ++p) {
+                    // todo: improve caching
+                    int res = solve[i][p] + solve[p + 1][j];
+                    if (res < ans) {
+                        ans = res;
                         opt = p;
                     }
                 }
 
-                ref += sum[j] - sum[i - 1];
+                pos[i] = opt;
+                solve[i][j] = sum[j] - sum[i - 1] + ans;
             }
         }
 
-        cout << solve[1][n] << '\n';
+        printf("%d\n", solve[1][n]);
     }
 
     return 0;
