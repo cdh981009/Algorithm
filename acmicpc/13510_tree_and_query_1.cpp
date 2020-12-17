@@ -8,7 +8,7 @@ using namespace std;
 #define FOR(i, a, b) for (int i = (a); i < (b); ++i)
 #define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
-constexpr int N = 1e3 + 10;
+constexpr int N = 1e5 + 10;
 
 // heavy-light decomposition
 
@@ -22,7 +22,7 @@ int segIndCnt;
 
 // max tree
 int segN;
-int segTree[(1 << 10)]; // segTree of edges' weight
+int segTree[(1 << 19)]; // segTree of edges' weight
 
 // root = 1
 vector<int> adj[N]; // only destination
@@ -79,7 +79,7 @@ void decomposit(int node) {
 }
 
 void initTree() {
-    for(segN = 1; segN < n - 1; segN <<= 1);
+    for(segN = 1; segN < n; segN <<= 1);
     
     // leaf init
     FOR_(i, 1, n - 1) {
@@ -147,7 +147,6 @@ void update(int i, int c) {
 }
 
 int query(int u, int v) {
-    // todo: find lca
     int ans = 0;
 
     while (vertex2chain[u] != vertex2chain[v]) {
