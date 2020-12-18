@@ -22,7 +22,7 @@ bool visited[N];
 
 int centParent[N];
 bool isWhite[N];
-multiset<int> subtreeWhite[N];
+priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> subtreeWhite[N];
 
 void dfs(int node) {
     FOR(i, 0, adj[node].size()) {
@@ -122,10 +122,10 @@ void update(int i) {
     int curr = i;
     while (curr != 0) {
         if (white) {
-            subtreeWhite[curr].insert(distance(i, curr));
-        } else {
+            subtreeWhite[curr].push({distance(i, curr), i});
+        }/* else {
             subtreeWhite[curr].erase(subtreeWhite[curr].find(distance(i, curr)));
-        }
+        }*/
 
         curr = centParent[curr];
     }
@@ -137,8 +137,15 @@ int query(int v) {
     int curr = v;
 
     while (curr != 0) {
-        if (!subtreeWhite[curr].empty())
-            ans = min(ans, distance(curr, v) + *subtreeWhite[curr].begin());
+        while (!subtreeWhite[curr].empty()) {
+            auto &p = subtreeWhite[curr].top();
+            if (!isWhite[p.second]) {
+                subtreeWhite[curr].pop();
+            } else {
+                ans = min(ans, distance(curr, v) + p.first);
+                break;
+            }
+        }
         curr = centParent[curr];
     }
 
