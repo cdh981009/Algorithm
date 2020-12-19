@@ -18,33 +18,42 @@ constexpr int N = 1 << B;
 constexpr double PI = 3.14159265358979323846;
 using C = complex<double>;
 
-int indexTable[N];
+vector<int> indexTable;
 vector<C> vec(N);
 
-// 계산의 편의를 위해서 홀수항과 짝수항을 재귀적으로 모은다
-// 바뀐 인덱스를 저장하는 테이블
-void constructIndexTable() {
-    // construct index table
-    for (int bit = 1 << (B - 1), j = 1; bit; bit >>= 1, j <<= 1) {
-        for (int i = 0; i < N; ++i) {
-            if ((i / j) & 1) {
-                indexTable[i] |= bit;
+void FFT(vector<C>& v, bool invert = false) {
+    int n = v.size();
+    int newN = 1;
+
+    // v.size() needs to be power of two
+    while (newN < n)
+        newN <<= 1;
+    v.resize(newN);
+
+    if (!invert) {
+        indexTable.resize(newN);
+        memset(indexTable.data(), 0, sizeof(int) * newN);
+
+        // construct index table
+        for (int bit = (newN >> 1), j = 1; bit; bit >>= 1, j <<= 1) {
+            for (int i = 0; i < newN; ++i) {
+                if ((i / j) & 1) {
+                    indexTable[i] |= bit;
+                }
             }
         }
     }
-}
 
-void FFT(vector<C>& v, bool invert = false) {
-    // 재배열
-    FOR(i, 0, N) {
+    // scramble
+    FOR(i, 0, newN) {
         if (i < indexTable[i])
             swap(v[i], v[indexTable[i]]);
     }
 
     int inv = invert ? -1 : 1;
-    for (int m = 2; m <= N; m <<= 1) {
+    for (int m = 2; m <= newN; m <<= 1) {
         C e(cos(-2.0 * PI / m * inv), -sin(2.0 * PI / m * inv));
-        for (int i = 0; i < N; i += m) {
+        for (int i = 0; i < newN; i += m) {
             C w = C(1, 0);
             for (int k = 0; k < m / 2; ++k) {
                 C even = v[i + k];
@@ -58,8 +67,8 @@ void FFT(vector<C>& v, bool invert = false) {
     }
 
     if (invert)
-        for (int i = 0; i < N; ++i)
-            v[i] /= N;
+        for (int i = 0; i < newN; ++i)
+            v[i] /= newN;
 }
 
 int main() {
@@ -67,9 +76,7 @@ int main() {
     //freopen("output.txt", "w", stdout);
     ios_base::sync_with_stdio(false);
     cin.tie(0);
-
-    constructIndexTable();
-
+    
     int n, m;
     cin >> n;
     FOR(i, 0, n) {
