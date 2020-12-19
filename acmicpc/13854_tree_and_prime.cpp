@@ -8,29 +8,25 @@ using namespace std;
 #define FOR(i, a, b) for (int i = (a); i < (b); ++i)
 #define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
-// sieve
+// sieve ////////////////////////////////////////////////////////////////
 constexpr int P = 5e4;
 bool isPrime[P + 1];
 vector<int> primes;
 
 void sieve() {
-    FOR_(i, 0, P) {
+    FOR_(i, 0, P)
         isPrime[i] = true;
-    }
     isPrime[0] = isPrime[1] = false;
-
     for (int i = 2; i * i <= P; ++i)
         if (isPrime[i])
             for (int j = i * i; j <= P; j += i)
                 isPrime[j] = false;
-
     FOR_(i, 0, P)
-    if (isPrime[i])
-        primes.push_back(i);
+        if (isPrime[i])
+            primes.push_back(i);
 }
 
-// fast fourier transform
-
+// fast fourier transform ////////////////////////////////////////////////
 constexpr double PI = 3.14159265358979323846;
 using C = complex<double>;
 
@@ -40,6 +36,7 @@ void FFT(vector<C>& v, bool invert = false) {
     int n = v.size();
     int newN = 1;
 
+    // v.size() needs to be power of two
     while (newN < n)
         newN <<= 1;
     v.resize(newN);
@@ -56,7 +53,7 @@ void FFT(vector<C>& v, bool invert = false) {
         }
     }
 
-    // 재배열
+    // scramble
     FOR(i, 0, newN) {
         if (i < indexTable[i])
             swap(v[i], v[indexTable[i]]);
@@ -83,51 +80,32 @@ void FFT(vector<C>& v, bool invert = false) {
             v[i] /= newN;
 }
 
-// centroid decomposition
+// centroid decomposition ////////////////////////////////////////////////////
 constexpr int V = 5e4 + 1;
-constexpr int LOGV = 15;
 
 int n;
 
 vector<int> adj[V];
-int ancestor[LOGV][V]; // 2^x th ancestor
-int depth[V];
 int sz[V];
-bool visited[V];
-
-vector<int> centChildren[V];
-int centSz[V];
-
-void dfs(int node) {
-    FOR(i, 0, adj[node].size()) {
-        int c = adj[node][i];
-        if (c == ancestor[0][node])
-            continue;
-
-        ancestor[0][c] = node;
-        depth[c] = depth[node] + 1;
-        dfs(c);
-    }
-}
+bool used[V];
 
 void getSize(int node, int prev) {
     int& s = sz[node];
     s = 1;
     FOR(i, 0, adj[node].size()) {
         int c = adj[node][i];
-        if (visited[c] || c == prev)
+        if (used[c] || c == prev)
             continue;
         getSize(c, node);
         s += sz[c];
     }
 }
 
-// O(log^2 n)
-// node 를 루트로 하는 서브트리에서 centroid를 구한다
+// O(n * log^2 n)
 int getCentroid(int node, int prev, int cap) {
     FOR(i, 0, adj[node].size()) {
         int c = adj[node][i];
-        if (visited[c] || c == prev)
+        if (used[c] || c == prev)
             continue;
 
         if (sz[c] * 2 > cap) {
@@ -138,142 +116,86 @@ int getCentroid(int node, int prev, int cap) {
     return node;
 }
 
-// O(n log^2 (n))
-void centroidDecomposit(int node, int prev) {
-    getSize(node, 0);
-
-    int cent = getCentroid(node, 0, sz[node]);
-
-    centChildren[prev].push_back(cent);
-    centSz[cent] = 1;
-
-    visited[cent] = true;
-
-    FOR(i, 0, adj[cent].size()) {
-        int c = adj[cent][i];
-        if (visited[c] || c == prev)
-            continue;
-
-        centroidDecomposit(c, cent);
-    }
-
-    centSz[prev] += centSz[cent];
-}
-
-// O(log(n))
-int lca(int u, int v) {
-    if (depth[u] != depth[v]) {
-        if (depth[u] > depth[v])
-            swap(u, v);
-
-        // v is always lower
-
-        for (int step = LOGV - 1; step >= 0; --step) {
-            while (depth[ancestor[step][v]] >= depth[u])
-                v = ancestor[step][v];
-        }
-    }
-
-    // now u and v is on the same depth
-    if (u != v) {
-        for (int step = LOGV - 1; step >= 0; --step) {
-            while (ancestor[step][v] != ancestor[step][u]) {
-                v = ancestor[step][v];
-                u = ancestor[step][u];
-            }
-        }
-        u = ancestor[0][u];
-    }
-
-    return u;
-}
-
-// O(log(n))
-int distance(int u, int v) {
-    return depth[u] + depth[v] - 2 * depth[lca(u, v)];
-}
-
+long long cnt = 0;
 vector<C> subtreeDist;
 vector<C> totalDist;
 
-void getDistVec(int root, int node, vector<C>& vec) {
-    vec[distance(root, node)] += 1;
-
-    FOR(i, 0, centChildren[node].size()) {
-        int c = centChildren[node][i];
-        getDistVec(root, c, vec);
+void getDistVec(int node, int prev, int dist, vector<C>& vec) {
+    FOR(i, 0, adj[node].size()) {
+        int c = adj[node][i];
+        if (used[c] || c == prev)
+            continue;
+        getDistVec(c, node, dist + 1, vec);
     }
+
+    if (vec.size() <= dist)
+        vec.resize(dist + 1);
+    vec[dist] += 1;
 }
 
-long long gcd(long long a, long long b) {
-    if (a < b)
-        swap(a, b);
-    // a > b;
-    while (b != 0) {
-        a %= b;
-        swap(a, b);
-    }
-    return a;
-}
+// O(n log^2 (n))
+// centroid decomposition + fast fourier transform
+void solve(int node, int prev) {
+    getSize(node, 0);
 
-double getPrimeDistanceCnt() {
-    long long ans = 0;
-    FOR_(node, 1, n) {
-        int totalSz = centSz[node];
-        if (totalSz == 1)
+    int cent = getCentroid(node, 0, sz[node]);
+    used[cent] = true;
+
+    totalDist.resize(1);
+    totalDist[0] = 1;
+
+    // conquer
+    FOR(i, 0, adj[cent].size()) {
+        int c = adj[cent][i];
+        if (used[c] || c == prev)
             continue;
 
-        totalDist.resize(4 * (totalSz + 1));
-        memset(totalDist.data(), 0, sizeof(C) * totalDist.size());
-        totalDist[0] = 1;
+        subtreeDist.clear();
+        getDistVec(c, prev, 1, subtreeDist);
 
-        FOR(i, 0, centChildren[node].size()) {
-            int c = centChildren[node][i];
-            int subSz = centSz[c];
+        subtreeDist.resize(4 * subtreeDist.size());
 
-            subtreeDist.resize(4 * (subSz + 1));
-            memset(subtreeDist.data(), 0, sizeof(C) * subtreeDist.size());
+        if (subtreeDist.size() > totalDist.size())
+            totalDist.resize(subtreeDist.size());
 
-            getDistVec(node, c, subtreeDist);
+        FOR(i, 0, subtreeDist.size())
+            totalDist[i] += subtreeDist[i];
 
-            FOR(j, 0, subtreeDist.size())
-            totalDist[j] += subtreeDist[j];
-
-            FFT(subtreeDist);
-            FOR(j, 0, subtreeDist.size())
+        FFT(subtreeDist);
+        FOR(j, 0, subtreeDist.size())
             subtreeDist[j] *= subtreeDist[j];
-            FFT(subtreeDist, true);
+        FFT(subtreeDist, true);
 
-            FOR(j, 0, primes.size()) {
-                if (primes[j] >= subtreeDist.size())
-                    break;
-                ans -= (long long)(subtreeDist[primes[j]].real() + 0.5);
-            }
-        }
-
-        FFT(totalDist);
-        FOR(i, 0, totalDist.size())
-        totalDist[i] *= totalDist[i];
-        FFT(totalDist, true);
-
-        FOR(i, 0, primes.size()) {
-            if (primes[i] >= totalDist.size())
+        FOR(j, 0, primes.size()) {
+            if (primes[j] >= subtreeDist.size())
                 break;
-            ans += (long long)(totalDist[primes[i]].real() + 0.5);
+            cnt -= (long long)(subtreeDist[primes[j]].real() + 0.5);
         }
     }
 
-    // cout << ans << '\n';
+    FFT(totalDist);
+    FOR(i, 0, totalDist.size())
+        totalDist[i] *= totalDist[i];
+    FFT(totalDist, true);
 
-    long long m = (long long)n * (n - 1);
-    long long g = gcd(ans, m);
-    m /= g;
-    ans /= g;
-    return (double)ans / m;
+    FOR(i, 0, primes.size()) {
+        if (primes[i] >= totalDist.size())
+            break;
+        cnt += (long long)(totalDist[primes[i]].real() + 0.5);
+    }
+
+    // divide
+    FOR(i, 0, adj[cent].size()) {
+        int c = adj[cent][i];
+        if (used[c] || c == prev)
+            continue;
+
+        solve(c, cent);
+    }
 }
 
 int main() {
-    // freopen("input.txt", "r", stdin);
+    freopen("input.txt", "r", stdin);
     // freopen("output.txt", "w", stdout);
     ios_base::sync_with_stdio(false);
     cin.tie(0);
@@ -288,17 +210,10 @@ int main() {
         adj[v].push_back(u);
     }
 
-    depth[0] = -1;
-    dfs(1);
-    FOR(i, 1, LOGV) {
-        FOR_(j, 1, n) {
-            ancestor[i][j] = ancestor[i - 1][ancestor[i - 1][j]];
-        }
-    }
+    solve(1, 0);
 
-    centroidDecomposit(1, 0);
-
-    double ans = getPrimeDistanceCnt();
+    long long m = (long long)n * (n - 1);
+    double ans = (double)cnt / m;
     cout << fixed << setprecision(9) << ans << '\n';
 
     return 0;
