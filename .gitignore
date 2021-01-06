@@ -13,4 +13,4 @@ acmicpc/Problems/
 test.cpp
 *.out
 *.manifest
-.vscode/
+.vscode/settings.json
