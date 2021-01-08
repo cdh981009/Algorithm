@@ -24,7 +24,7 @@ bool pick(int w, int i) {
     }
 
     bool &ref = dp[w + BASE][i];
-    bool mem = memoi[w + BASE][i];
+    bool &mem = memoi[w + BASE][i];
     
     if (mem) return ref;
 
