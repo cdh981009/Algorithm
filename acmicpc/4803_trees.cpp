@@ -25,7 +25,8 @@ bool dfs(int node, int par) {
 
         if (visited[child])
             return false;
-        dfs(child, node);
+        if (!dfs(child, node))
+            return false;
     }
 
     return true;
