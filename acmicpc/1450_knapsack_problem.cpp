@@ -9,25 +9,30 @@ using namespace std;
 #define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
 constexpr int N = 30;
+constexpr int M = 1 << 15;
 
 int n, c;
-int m;
 int arr[N];
 
-map<int, int> l, r;
+// 최대 2^15 가지의 가능한 sum 가짓수들
+int sums[1 << 15];
+int sCnt;
 
-vector<int> lv, rv;
-vector<int> lCnt, rPreSum;
+int ans = 0;
 
-// 2 ^ 15 = 3e4
-void getSum(int i, int e, int w, map<int, int>& m) {
-    if (w >= INF)
-        return;
-    if (i == e) {
-        m[w]++;;
+void getSum(int i, int sum, int end) {
+    if (i == end) {
+        if (end == n) {
+            auto it = upper_bound(sums, sums + sCnt, c - sum);
+            int x = (it - sums);
+            ans += x;
+        } else {
+            sums[sCnt++] = sum;
+        }
     } else {
-        getSum(i + 1, e, w, m);
-        getSum(i + 1, e, w + arr[i], m);
+        getSum(i + 1, sum, end);
+        if (sum + arr[i] <= c)
+            getSum(i + 1, sum + arr[i], end);
     }
 }
 
@@ -42,39 +47,11 @@ int main() {
         cin >> arr[i];
     }
 
-    int m = n / 2;
-    getSum(0, m, 0, l);
-    getSum(m, n, 0, r);
+    getSum(0, 0, n / 2);
+    sort(sums, sums + sCnt);
+    getSum(n / 2, 0, n);
 
-    lv.reserve(l.size());
-    lCnt.reserve(l.size());
-    rv.reserve(r.size());
-    rPreSum.reserve(r.size());
-
-    for (auto& p : l) {
-        lv.push_back(p.first);
-        lCnt.push_back(p.second);
-    }
-
-    for (auto& p : r) {
-        rv.push_back(p.first);
-        rPreSum.push_back(p.second);
-    }
-    FOR(i, 1, rPreSum.size()) {
-        rPreSum[i] += rPreSum[i - 1];
-    }
-
-    int cnt = 0;
-    FOR(i, 0, lv.size()) {
-        int c1 = lv[i];
-        int c2 = c - c1;
-        auto it = upper_bound(rv.begin(), rv.end(), c2);
-        int ind = it - rv.begin() - 1;
-
-        cnt += lCnt[i] * rPreSum[ind]; 
-    }
-
-    cout << cnt << '\n';
+    cout << ans << '\n';
 
     return 0;
 }
