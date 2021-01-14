@@ -5,7 +5,7 @@
 using namespace std;
 
 #define INF 987654321
-#define FOR(i, a, b) for (double i = (a); i < (b); ++i)
+#define FOR(i, a, b) for (int i = (a); i < (b); ++i)
 #define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
 int main() {
