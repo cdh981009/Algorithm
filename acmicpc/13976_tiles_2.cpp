@@ -8,7 +8,7 @@ using namespace std;
 #define FOR(i, a, b) for (int i = (a); i < (b); ++i)
 #define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
-constexpr int M = 1e9 + 7;
+constexpr long long M = 1e9 + 7;
 
 struct mat2x2 {
     long long x, y, z, w;
@@ -16,10 +16,10 @@ struct mat2x2 {
 
 mat2x2 operator*(const mat2x2& l, const mat2x2& r) {
     return {
-            ((l.x * r.x) % M + (l.y * r.z) % M) % M,
-            ((l.x * r.y) % M + (l.y * r.w) % M) % M,
-            ((l.z * r.x) % M + (l.w * r.z) % M) % M,
-            ((l.z * r.y) % M + (l.w * r.w) % M) % M,
+            ((l.x * r.x) % M + (l.y * r.z) % M + M) % M,
+            ((l.x * r.y) % M + (l.y * r.w) % M + M) % M,
+            ((l.z * r.x) % M + (l.w * r.z) % M + M) % M,
+            ((l.z * r.y) % M + (l.w * r.w) % M + M) % M,
     };
 }
 
@@ -36,7 +36,7 @@ int cntTile(long long n) {
         n /= 2;
     }
 
-    return (((ret.x * 11) % M + (ret.y * 3) % M) + M) % M;
+    return ((ret.x * 11) + (ret.y * 3) + M) % M;
 }
 
 // f(n) = 4 * f(n - 2) - f(n - 4)
