@@ -12,69 +12,39 @@ constexpr int N = 14;
 constexpr int X = (1 << N);
 constexpr int M = 9901;
 
-bitset<X> memoi[X];
-bitset<X> valid[X];
-int dp[X][N];
+int dp[N * N][X];
 int n, m;
 
-bool getValid(int prev, int curr) {
-    if (memoi[prev][curr])
-        return valid[prev][curr];
+int fillGrid(int ind, int state) {
+    if (ind > n * m)
+        return 0;
+    if (ind == n * m)
+        return state == 0;
 
-    bool open = false;
-    memoi[prev][curr] = 1;
-
-    FOR(i, 0, m) {
-        if (prev & (1 << i)) {
-            if (open || (curr & (1 << i))) {
-                return valid[prev][curr] = false;
-            }
-        } else if (curr & (1 << i)) {
-            if (open) {
-                return valid[prev][curr] = false;
-            }
-        } else {
-            open = !open;
-        }
-    }
-
-    if (open)
-        return valid[prev][curr] = false;
-
-    return valid[prev][curr] = true;
-}
-
-int fillGrid(int prev, int ind) {
-    if (ind == n)
-        return getValid(prev, (1 << m) - 1);
-
-    int& ref = dp[prev][ind];
+    int& ref = dp[ind][state];
 
     if (ref != -1)
         return ref;
 
-    ref = 0;
-
-    FOR(i, 0, (1 << m)) {
-        if (getValid(prev, i)) {
-            ref += fillGrid(i, ind + 1);
-            ref %= M;
+    if (state & 1) {
+        ref = fillGrid(ind + 1, state >> 1);
+    } else {
+        ref = fillGrid(ind + 1, (state >> 1) | (1 << (m - 1))); // 아래로
+        if (ind % m != m - 1 && !(state & (1 << 1))) { // 옆으로
+            ref += fillGrid(ind + 2, state >> 2);
         }
     }
 
-    return ref;
+    return ref %= M;
 }
 
 int main() {
     freopen("input.txt", "r", stdin);
     //freopen("output.txt", "w", stdout);
 
-    memset(dp, -1, sizeof(int) * X * N);
+    memset(dp, -1, sizeof(int) * X * N * N);
 
     scanf("%d %d", &n, &m);
-
-    if (n < m)
-        swap(n, m);
 
     printf("%d", fillGrid(0, 0));
 
