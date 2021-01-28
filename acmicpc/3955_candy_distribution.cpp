@@ -34,11 +34,6 @@ using ll = long long;
 // solve ax + by = gcd(a, b);
 tuple<ll, ll, ll> gcd(int a, int b) {
     ll x, y, g;
-    
-    if (a < b) {
-        tie(x, y, g) = gcd(b, a);
-        return tie(y, x, g);
-    }
 
     if (b == 0)
         return {1, 0, a};
