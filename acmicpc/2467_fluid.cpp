@@ -1,5 +1,5 @@
-// 2239: sudoku
-// https://www.acmicpc.net/problem/2239
+// 2467: 용액
+// https://ww.acmicpc.net/problem/2467
 #include <bits/stdc++.h>
 
 using namespace std;
