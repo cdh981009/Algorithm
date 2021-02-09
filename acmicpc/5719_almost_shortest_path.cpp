@@ -7,57 +7,76 @@ using namespace std;
 #define FOR(i, a, b) for (int i = (a); i < (b); ++i)
 #define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
-// chinese remainder theorem
-
 constexpr int INF = 1e8;
 constexpr int N = 500;
 
-vector<pair<int, int>> edges[N];
-vector<int> path[N];
+int adj[N][N];
+bool route[N][N];
 int dist[N];
 bool visited[N];
 
-
 int n, m, src, dest;
 
-int solve() {
-	priority_queue<pair<int, int>> pq;
-	
-	FOR(i, 0, n) {
-		dist[i] = INF;
-	}
-	
-	dist[src] = 0;
-	pq.push({src, 0});
-	
-	while (!pq.empty()) {
-		auto t = pq.top();
-		pq.pop();
-		int curr = t.first;
-		int d = -t.second;
-		
-		if (visited[curr])
-			continue;
-		visited[curr] = true;
-		
-		FOR(i, 0, edges[curr].size()) {
-			auto& e = edges[curr][i];
-			int next = e.first;
-			int w = e.second;
+int solve(int state = 0) {
+    memset(visited, 0, sizeof(bool) * N);
+    priority_queue<pair<int, int>> pq;
+
+    FOR(i, 0, n) {
+        dist[i] = INF;
+    }
+
+    dist[src] = 0;
+    pq.push({0, src});
+
+    while (!pq.empty()) {
+        auto t = pq.top();
+        pq.pop();
+        int d = -t.first;
+        int curr = t.second;
+
+        if (visited[curr])
+            continue;
+        visited[curr] = true;
+
+        FOR(next, 0, n) {
+			if (visited[next] || !route[curr][next])
+				continue;
 			
-			if (d + w < dist[next]) {
-				path[next].clear();
-				dist[next] = d + w;
-				pq.push({next, -dist[next]});
-			}
-			
-			if (d + w == dist[next]) {
-				path[next].push_back(curr);
-			}
-		}
-	}
-	
-	return dist[dest];
+            int w = adj[curr][next];
+
+            if (d + w < dist[next]) {
+                dist[next] = d + w;
+                pq.push({-dist[next], next});
+            }
+        }
+    }
+
+    if (state == 0) {
+        memset(visited, 0, sizeof(bool) * N);
+
+        vector<int> stk;
+        stk.push_back(dest);
+		visited[dest] = true;
+
+        while (!stk.empty()) {
+            int curr = stk.back();
+            stk.pop_back();
+            FOR(prv, 0, n) {
+                if (!route[prv][curr])
+                    continue;
+				if (dist[prv] + adj[prv][curr] == dist[curr]) {
+					route[prv][curr] = false;
+					if (!visited[prv]) {
+						stk.push_back(prv);
+						visited[prv] = true;
+					}
+				}
+            }
+        }
+        return solve(1);
+    } else {
+        return dist[dest];
+    }
 }
 
 int main() {
@@ -68,22 +87,21 @@ int main() {
 
     while (true) {
         cin >> n >> m;
-		if (n == 0 && m == 0)
-			break;
-		cin >> src >> dest;
-		memset(visited, 0, sizeof(bool) * N);
-		FOR(i, 0, n) {
-			edges[i].clear();
-			path[i].clear();
-		}
-		
-		FOR(i, 0, m) {
-			int u, v, p;
-			cin >> u >> v >> p;
-			edges[u].push_back({v, p});
-		}
-		
-		int ans = solve();
+        if (n == 0 && m == 0)
+            break;
+        cin >> src >> dest;
+
+        memset(adj, 0, sizeof(int) * N * N);
+		memset(route, 0, sizeof(bool) * N * N);
+
+        FOR(i, 0, m) {
+            int u, v, p;
+            cin >> u >> v >> p;
+			route[u][v] = true;
+			adj[u][v] = p;
+        }
+
+        int ans = solve();
         cout << (ans == INF ? -1 : ans) << '\n';
     }
 
