@@ -34,51 +34,36 @@ void init() {
     }
 }
 
-// s, e구간에 있는 merge sort tree의 sort된 덩어리들의 인덱스를 가져온다
-// 덩어리들의 갯수는 O(log n)
-vector<int> getChunks(int s, int e) {
+// s, e구간에 있는 숫자중 x보다 작거나 같은 것의 갯수
+int cntLE(int s, int e, int x) {
     s += sz;
     e += sz;
 
-    vector<int> res;
+    int cnt = 0;
+
     while (s <= e) {
         if (s % 2 == 1) {
-            res.push_back(s);
+            cnt += upper_bound(seg[s].begin(), seg[s].end(), x) - seg[s].begin();
             s++;
         }
         if (e % 2 == 0) {
-            res.push_back(e);
+            cnt += upper_bound(seg[e].begin(), seg[e].end(), x) - seg[e].begin();
             e--;
         }
         s /= 2;
         e /= 2;
     }
 
-    return res;
+    return cnt;
 }
 
 // O(log^3 n)
 int query(int s, int e, int k) {
-    vector<int> chunks = getChunks(s, e);
-
-    // O(log n)개의 덩어리들에 대해 binary search
-    // x보다 작거나 같은 원소의 갯수가 몇개인지 확인한다
-    // 그 갯수가 k 이상이면 true 아니면 false
-    auto f = [&](int x) {
-        int cnt = 0;
-        FOR(i, 0, chunks.size()) {
-            auto &v = seg[chunks[i]];
-            int l = upper_bound(v.begin(), v.end(), x) - v.begin();
-            cnt += l;
-        }
-        return cnt >= k;
-    };
-
     // parametric search with check function of time complexity O(logn logn)
     int maxN = n;
     int x = -1;
     for (int step = maxN; step >= 1; step /= 2) {
-        while (x + step < n && !f(seg[1][x + step]))
+        while (x + step < n && cntLE(s, e, seg[1][x + step]) < k)
             x += step;
     }
 
