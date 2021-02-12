@@ -22,12 +22,12 @@ void init() {
     for (sz = 1; sz < n; sz <<= 1);
 
     // leaf
-    FOR(i, 0, sz) {
-        seg[i + sz].push_back(i < n ? arr[i] : INF);
+    FOR(i, 0, n) {
+        seg[i + sz].push_back(arr[i]);
     }
 
     for (int i = sz - 1; i >= 1; --i) {
-        seg[i].resize(seg[2 * i].size() * 2);
+        seg[i].resize(seg[2 * i].size() + seg[2 * i + 1].size());
         merge(seg[2 * i].begin(),     seg[2 * i].end(),
               seg[2 * i + 1].begin(), seg[2 * i + 1].end(),
               seg[i].begin());
