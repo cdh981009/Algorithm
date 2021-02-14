@@ -1,4 +1,4 @@
-//1126: 같은 탑
+// 1126: 같은 탑
 // https://www.acmicpc.net/problem/1126
 #include <bits/stdc++.h>
 
