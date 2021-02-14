@@ -10,56 +10,26 @@ using namespace std;
 
 // modified KMP
 
-vector<int> getPi(const string& p, int s) {
-    int n = p.length() - s;
+int getPi(const string& p) {
+    int ans = 0;
+
+    int n = p.length();
     vector<int> pi(n, 0);
 
-    int match = 0;
-    FOR(i, 1, n) {
-        while (match > 0 && p[s + i] != p[s + match])
-            match = pi[match - 1];
-        if (p[s + i] == p[s + match])
-            match++;
-        pi[i] = match;
-    }
-
-    return pi;
-}
-
-// modified kmp
-int kmp(const string& str) {
-    int n = str.length();
-
-    int ret = 0;
-    FOR(s, 1, n) {
-        // new needle: str[s...]
-        vector<int> pi = getPi(str, s);
-
-        int maxMatch = 0;
+    FOR(s, 0, n) {
         int match = 0;
-
-        FOR(i, 0, n) {
-            while (match > 0 && str[i] != str[s + match]) {
+        FOR(i, 1, n - s) {
+            while (match > 0 && p[s + i] != p[s + match])
                 match = pi[match - 1];
-            }
-
-            if (str[i] == str[s + match]) {
+            if (p[s + i] == p[s + match])
                 match++;
-            }
+            pi[i] = match;
 
-            if (match > maxMatch) {
-                maxMatch = match;
-            } else if (match == maxMatch) {
-                ret = max(ret, maxMatch);
-            }
-
-            if (match == n - s) {
-                match = pi[match - 1];
-            }
+            ans = max(ans, match);
         }
     }
 
-    return ret;
+    return ans;
 }
 
 int main() {
@@ -71,7 +41,7 @@ int main() {
     string str;
     cin >> str;
 
-    cout << kmp(str) << '\n';
+    cout << getPi(str) << '\n';
 
     return 0;
 }
