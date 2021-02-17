@@ -8,20 +8,30 @@ using namespace std;
 #define FOR(i, a, b) for (int i = (a); i < (b); ++i)
 #define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
-constexpr int N = 1e4;
-// one chunk is 1e4
-// 0 ~ 9999
-int num[N];
+constexpr int N = 1e3;
+constexpr long long X = 1e10;
+// one chunk is 1e10
+// 0 ~ 1e10 - 1
+long long num[N];
+long long aux[N];
 
-void op(int m, int a) {
+void mul(long long n[N], int a) {
     FOR(i, 0, N) {
-        num[i] *= m;
+        n[i] *= a;
     }
-    num[0] += a;
-    int i = 0;
     FOR(i, 0, N - 1) {
-        num[i + 1] += num[i] / N;
-        num[i] %= N;
+        n[i + 1] += n[i] / X;
+        n[i] %= X;
+    }
+}
+
+void add(long long n[N], long long a[N]) {
+    FOR(i, 0, N) {
+        n[i] += a[i];
+    }
+    FOR(i, 0, N - 1) {
+        n[i + 1] += n[i] / X;
+        n[i] %= X;
     }
 }
 
@@ -34,19 +44,23 @@ int main() {
     string s; cin >> s;
 
     num[0] = 1;
+    aux[0] = 1;
 
     FOR(i, 0, s.size()) {
         int ind = i;
 
         switch (s[ind]) {
             case 'R':
-                op(2, 1);
+                mul(num, 2);
+                add(num, aux);
                 break;
             case 'L':
-                op(2, 0);
+                mul(num, 2);
                 break;
             case '*':
-                op(5, 1);
+                mul(num, 5);
+                add(num, aux);
+                mul(aux, 3);
                 break;
         }
     }
@@ -60,9 +74,9 @@ int main() {
 
     for (int i = N - 1; i >= 0; --i) {
         if (!leadingZ || num[i] != 0) {
-            int x = 1000;
-            FOR(j, 0, 4) {
-                int n = num[i] / x;
+            long long x = X / 10;
+            FOR(j, 0, 10) {
+                long long n = num[i] / x;
                 num[i] %= x;
                 if (!leadingZ || n != 0) {
                     leadingZ = false;
