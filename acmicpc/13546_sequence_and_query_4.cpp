@@ -13,14 +13,13 @@ using namespace std;
 // time complexiy is O(n * sqrt(n))
 
 constexpr int N = 101010;
+constexpr int sq = 315;
 
 using pii = pair<int, int>;
 
-int n, k, q;
-int block;
-int arr[N];
-
-deque<int> ind[N];
+int n, k, m;
+int arr[N], f[N], b[N];
+vector<int> ind[N];
 
 // cnt: diff가 x인 값이 몇개 있는지 저장
 // bucket: cnt를 sqrt decomposition해서 값들의 sum을 들고 있음
@@ -29,43 +28,53 @@ vector<int> bucket;
 
 void push(int x, bool left) {
     int now;
-    auto& dq = ind[arr[x]];
+    auto& v = ind[arr[x]];
+    int num = arr[x];
 
-    if (!dq.empty()) {
-        now = dq.back() - dq.front();
+    if (f[num] <= b[num]) {
+        now = v[b[num]] - v[f[num]];
         cnt[now]--;
-        bucket[now / block]--;
+        bucket[now / sq]--;
     }
 
     if (left)
-        dq.push_front(x);
+        f[num]--;
     else
-        dq.push_back(x);
+        b[num]++;
 
-    now = dq.back() - dq.front();
+    now = v[b[num]] - v[f[num]];
     cnt[now]++;
-    bucket[now / block]++;
+    bucket[now / sq]++;
 }
 
 void pop(int x, bool left) {
     int now;
-    auto& dq = ind[arr[x]];
+    auto& v = ind[arr[x]];
+    int num = arr[x];
 
-    now = dq.back() - dq.front();
+    now = v[b[num]] - v[f[num]];
     cnt[now]--;
-    bucket[now / block]--;
+    bucket[now / sq]--;
 
     if (left)
-        dq.pop_front();
+        f[num]++;
     else
-        dq.pop_back();
+        b[num]--;
 
-    if (!dq.empty()) {
-        now = dq.back() - dq.front();
+    if (f[num] <= b[num]) {
+        now = v[b[num]] - v[f[num]];
         cnt[now]++;
-        bucket[now / block]++;
+        bucket[now / sq]++;
     }
 }
+
+struct Query {
+    int s, e, i;
+
+    bool operator<(const Query& o) {
+        return s / sq != o.s / sq ? s / sq < o.s / sq : e < o.e;
+    }
+};
 
 int main() {
     freopen("input.txt", "r", stdin);
@@ -73,42 +82,37 @@ int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);
 
+    memset(b, -1, sizeof(int) * N);
+
     cin >> n >> k;
-    block = sqrt(n);
-    bucket = vector<int>(n / block + 2, 0);
+    bucket = vector<int>(n / sq + 1, 0);
 
-    FOR(i, 0, n)
+    FOR(i, 0, n) {
         cin >> arr[i];
+        ind[arr[i]].push_back(i);
+    }
 
-    cin >> q;
-    vector<pair<pii, int>> queries(q);
-    FOR(i, 0, q) {
+    cin >> m;
+    vector<Query> qs(m);
+    FOR(i, 0, m) {
         int l, r;
         cin >> l >> r;
         l--;
         r--;
-        queries[i] = {{l, r}, i};
+        qs[i] = {l, r, i};
     }
 
     // 왼쪽 블록을 기준으로 정렬
     // 왼쪽 블록이 같은 경우 오른족 index를 기준으로 정렬
-    sort(queries.begin(), queries.end(), [](const pair<pii, int>& l, const pair<pii, int>& r) {
-        const auto& x = l.first;
-        const auto& y = r.first;
-        return (x.second / block) != (y.second / block) ? (x.second / block) < (y.second / block) : x.first < y.first;
-    });
+    sort(qs.begin(), qs.end());
+    vector<int> ansVec(m, 0);
 
-    vector<int> ansVec(q, 0);
+    int l = 0, r = 0;
+    push(0, false);
 
-    int l, r;
-    l = queries[0].first.first;
-    r = queries[0].first.second;
-    FOR_(i, l, r)
-        push(i, false);
-
-    for (const auto& p : queries) {
-        int s = p.first.first;
-        int e = p.first.second;
+    for (const auto& p : qs) {
+        int s = p.s;
+        int e = p.e;
 
         while (r < e)
             push(++r, false);
@@ -121,14 +125,14 @@ int main() {
             pop(l++, true);
 
         int ans = 0;
-        ansVec[p.second] = 0;
+        ansVec[p.i] = 0;
         for (int i = bucket.size() - 1; i >= 0; --i) {
             if (bucket[i] > 0) {
                 // bucket이 represent하는 cnt의 index range
-                // [i * block, (i + 1) * block)
-                for (int j = (i + 1) * block - 1; j >= i * block; --j) {
+                // [i * sq, (i + 1) * sq)
+                for (int j = (i + 1) * sq - 1; j >= i * sq; --j) {
                     if (cnt[j] > 0) {
-                        ansVec[p.second] = j;
+                        ansVec[p.i] = j;
                         break;
                     }
                 }
