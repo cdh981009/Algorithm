@@ -8,43 +8,63 @@ using namespace std;
 #define FOR(i, a, b) for (int i = (a); i < (b); ++i)
 #define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
-// mo's algorithm + min segment tree
+// mo's algorithm + sqrt decomposition
 // offline query
-// time complexiy is O((n + q) * sqrt(n))
+// time complexiy is O(n * sqrt(n))
 
-constexpr int N = 100001;
-constexpr int X = (1 << 18);
+constexpr int N = 101010;
 
 using pii = pair<int, int>;
 
 int n, k, q;
+int block;
 int arr[N];
 
 deque<int> ind[N];
 
-int s;
-int seg[X];
+// cnt: diff가 x인 값이 몇개 있는지 저장
+// bucket: cnt를 sqrt decomposition해서 값들의 sum을 들고 있음
+int cnt[N];
+vector<int> bucket;
 
-void init() {
-    for (s = 1; s < k; s <<= 1)
-        ;
-}
+void push(int x, bool left) {
+    int now;
+    auto& dq = ind[arr[x]];
 
-void update(int x) {
-    int v = ind[x].empty() ? 0 : ind[x].back() - ind[x].front();
-    x += s;
-    seg[x] = v;
-
-    x /= 2;
-
-    while (x) {
-        seg[x] = max(seg[2 * x], seg[2 * x + 1]);
-        x /= 2;
+    if (!dq.empty()) {
+        now = dq.back() - dq.front();
+        cnt[now]--;
+        bucket[now / block]--;
     }
+
+    if (left)
+        dq.push_front(x);
+    else
+        dq.push_back(x);
+
+    now = dq.back() - dq.front();
+    cnt[now]++;
+    bucket[now / block]++;
 }
 
-int query() {
-    return seg[1];
+void pop(int x, bool left) {
+    int now;
+    auto& dq = ind[arr[x]];
+
+    now = dq.back() - dq.front();
+    cnt[now]--;
+    bucket[now / block]--;
+
+    if (left)
+        dq.pop_front();
+    else
+        dq.pop_back();
+
+    if (!dq.empty()) {
+        now = dq.back() - dq.front();
+        cnt[now]++;
+        bucket[now / block]++;
+    }
 }
 
 int main() {
@@ -54,10 +74,11 @@ int main() {
     cin.tie(0);
 
     cin >> n >> k;
-    init();
-    FOR(i, 0, n) {
+    block = sqrt(n);
+    bucket = vector<int>(n / block + 2, 0);
+
+    FOR(i, 0, n)
         cin >> arr[i];
-    }
 
     cin >> q;
     vector<pair<pii, int>> queries(q);
@@ -69,61 +90,51 @@ int main() {
         queries[i] = {{l, r}, i};
     }
 
-    int block = sqrt(n);
     // 왼쪽 블록을 기준으로 정렬
     // 왼쪽 블록이 같은 경우 오른족 index를 기준으로 정렬
-    sort(queries.begin(), queries.end(), [block](const pair<pii, int>& l, const pair<pii, int>& r) {
+    sort(queries.begin(), queries.end(), [](const pair<pii, int>& l, const pair<pii, int>& r) {
         const auto& x = l.first;
         const auto& y = r.first;
-        return (x.second / block) != (y.second / block) ?
-               (x.second / block) < (y.second / block) :
-                x.first < y.first;
+        return (x.second / block) != (y.second / block) ? (x.second / block) < (y.second / block) : x.first < y.first;
     });
 
-    auto pushL = [](int l) {
-        if (ind[arr[l]].empty() || ind[arr[l]].front() != l)
-            ind[arr[l]].push_front(l);
-        update(arr[l]);
-    };
+    vector<int> ansVec(q, 0);
 
-    auto popL = [](int l) {
-        if (!ind[arr[l]].empty())
-            ind[arr[l]].pop_front();
-        update(arr[l]);
-    };
-
-    auto pushR = [](int r) {
-        if (ind[arr[r]].empty() || ind[arr[r]].back() != r)
-            ind[arr[r]].push_back(r);
-        update(arr[r]);
-    };
-
-    auto popR = [](int r) {
-        if (!ind[arr[r]].empty())
-            ind[arr[r]].pop_back();
-        update(arr[r]);
-    };
-
-    vector<int> ansVec(q);
     int l, r;
-    l = r = 0;
-    pushL(0);
+    l = queries[0].first.first;
+    r = queries[0].first.second;
+    FOR_(i, l, r)
+        push(i, false);
 
     for (const auto& p : queries) {
         int s = p.first.first;
         int e = p.first.second;
 
         while (r < e)
-            pushR(++r);
-        while (r > e)
-            popR(r--);
-
-        while (l < s)
-            popL(l++);
+            push(++r, false);
         while (l > s)
-            pushL(--l);
+            push(--l, true);
 
-        ansVec[p.second] = query();
+        while (r > e)
+            pop(r--, false);
+        while (l < s)
+            pop(l++, true);
+
+        int ans = 0;
+        ansVec[p.second] = 0;
+        for (int i = bucket.size() - 1; i >= 0; --i) {
+            if (bucket[i] > 0) {
+                // bucket이 represent하는 cnt의 index range
+                // [i * block, (i + 1) * block)
+                for (int j = (i + 1) * block - 1; j >= i * block; --j) {
+                    if (cnt[j] > 0) {
+                        ansVec[p.second] = j;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
     }
 
     for (auto x : ansVec)
