@@ -11,7 +11,7 @@ int a, b, k, n;
 int x[N], y[N], z[N];
 
 int main() {
-    freopen("input.txt", "r", stdin);
+    //freopen("input.txt", "r", stdin);
     //freopen("output.txt", "w", stdout);
     ios_base::sync_with_stdio(false);
     cin.tie(0);
@@ -19,9 +19,14 @@ int main() {
     cin >> a >> b >> k;
     n = a + b;
     x[0] = y[0] = 1;
-    bool p = (k <= n - 2 && (a >= 1 || (a == 0 && k == 0)));
-    if (b == 1 && k != 0)
+    bool p;
+    if (k == 0) {
+        p = true;
+    } else if (b == 1 || a == 0) {
         p = false;
+    } else {
+        p = k <= n - 2;
+    }
     cout << (p ? "Yes" : "No") << '\n';
 
     if (p) {
