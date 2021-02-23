@@ -43,10 +43,6 @@ int main() {
             x[i] %= 2;
         }
         FOR(i, 0, n) {
-            cout << z[i];
-        }
-        cout << '\n';
-        FOR(i, 0, n) {
             cout << x[i];
         }
         cout << '\n';
