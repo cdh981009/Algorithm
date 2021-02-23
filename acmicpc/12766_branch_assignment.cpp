@@ -1,5 +1,5 @@
-// 13261: 탈옥
-// https://www.acmicpc.net/problem/13261
+// 12766: branch assignment
+// https://www.acmicpc.net/problem/12766
 #include <bits/stdc++.h>
 
 using namespace std;
@@ -18,31 +18,39 @@ long long val[N];
 long long dp[N][N];
 
 long long cost(int x, int y) {
-    return (long long)(y - x) * (val[y] - (x - 1 > 0 ? val[x - 1] : 0));
+    return (long long)(y - x) * (val[y] - (x > 0 ? val[x - 1] : 0));
 }
 
 // opt(i, j) <= opt(i + 1, j) 이므로 분할정복 트릭 사용가능
-
 // dp[s][x] 부터 ans[e][x] 까지 값을 구하고 값의 후보를 p부터 q까지만 확인한다
 void work(int s, int e, int x, int p, int q) {
+    if (s > e)
+        return;
+
     int mid = (s + e) / 2;
 
     long long& ref = dp[mid][x];
-    ref = INT64_MAX;
     int opt = 0;
+    ref = INT64_MAX;
 
-    FOR_(k, p, min(q, mid - 2)) {
-        long long res = dp[k + 1][x - 1] + cost(mid, k);
+    if (b - mid < x) {
+        work(s, mid - 1, x, p, q);
+        return;
+    }
+
+    FOR_(k, p, min(q, b - 2)) {
+        if (dp[k + 1][x - 1] == INT64_MAX)
+            continue;
+
+        long long res = cost(mid, k) + dp[k + 1][x - 1];
         if (res < ref) {
             ref = res;
             opt = k;
         }
     }
 
-    if (s <= mid - 1)
-        work(s, mid - 1, x, p, opt);
-    if (mid + 1 <= e)
-        work(mid + 1, e, x, opt, q);
+    work(s, mid - 1, x, p, opt);
+    work(mid + 1, e, x, opt, q);
 }
 
 bool visited[N];
@@ -73,7 +81,7 @@ void dijkstra() {
             if (visited[curr])
                 continue;
             visited[curr] = true;
-            
+
             FOR(i, 0, n) {
                 if ((back ? adj[i][curr] : adj[curr][i]) != -1 &&
                         !visited[i] &&
@@ -91,7 +99,7 @@ void dijkstra() {
 }
 
 int main() {
-    freopen("input.txt", "r", stdin);
+    //freopen("input.txt", "r", stdin);
     //freopen("output.txt", "w", stdout);
     ios_base::sync_with_stdio(false);
     cin.tie(0);
@@ -103,14 +111,14 @@ int main() {
     FOR(i, 0, r) {
         int u, v, l;
         cin >> u >> v >> l;
-        u--; v--;
+        u--;
+        v--;
         adj[u][v] = l;
     }
 
     dijkstra();
 
     sort(val, val + b);
-    
     FOR(i, 1, b) {
         val[i] += val[i - 1];
     }
@@ -122,10 +130,10 @@ int main() {
     // dp[s][x] 부터 ans[e][x] 까지 값을 구하고 값의 후보를 p부터 q까지만 확인한다
 
     FOR_(x, 2, s) {
-        work(0, b - 1, x, 0, b - x);
+        work(0, b - 1, x, 0, b - 1);
     }
 
     cout << dp[0][s] << '\n';
 
     return 0;
-    }
+}
