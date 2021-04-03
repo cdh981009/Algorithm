@@ -12,17 +12,17 @@ using namespace std;
 // const int X = 1 << 10;
 
 const int N = 101010;
+// 트리 펼치기 때문에 트리 leaf의 크기가 2 * N 이므로 필요한 노드 양이 많다
+const int NN = 40 * N;
 const int LN = 18;
-const int X = 1 << LN;
 
 int n, m;
 
 // num of leafs in segment tree(power of 2)
-int sn;
+int sn = 1 << LN;
 
 int value[N];
 int sorted[N];
-map<int, int> val2Seg;
 
 vector<int> edges[N];
 int par[N][LN];
@@ -31,59 +31,56 @@ int sInd[N];
 int eInd[N];
 
 // persistent segment tree (count tree)
-struct Node {
-    int value = 0;
-    Node* left = nullptr;
-    Node* right = nullptr;
-};
+int nl[NN], nr[NN], nv[NN];
+int nodeCnt = 0;
 
 // root node for i-th stage;
 int currStage = 0;
-Node* root[2 * N];
+int root[2 * N];
 
-void buildTree(Node* node, int s, int e) {
+void buildTree(int nInd, int s, int e) {
     if (s == e)
         return;
-    node->left = new Node;
-    node->right = new Node;
     int mid = (s + e) / 2;
-    buildTree(node->left, s, mid);
-    buildTree(node->right, mid + 1, e);
+    nl[nInd] = nodeCnt++;
+    buildTree(nl[nInd], s, mid);
+
+    nr[nInd] = nodeCnt++;
+    buildTree(nr[nInd], mid + 1, e);
 }
 
-void pointUpdate(Node* node, Node* old, int nodeLeft, int nodeRight, int ind, int v) {
+void pointUpdate(int nInd, int oInd, int nodeLeft, int nodeRight, int ind, int v) {
     if (nodeLeft == nodeRight) {
-        node->value = v;
+        nv[nInd] = v;
         return;
     }
 
     int mid = (nodeLeft + nodeRight) / 2;
 
     if (ind <= mid) {
-        node->left = new Node;
-        node->right = old->right;
-        pointUpdate(node->left, old->left, nodeLeft, mid, ind, v);
+        nl[nInd] = nodeCnt++;
+        nr[nInd] = nr[oInd];
+        pointUpdate(nl[nInd], nl[oInd], nodeLeft, mid, ind, v);
     } else {
-        node->left = old->left;
-        node->right = new Node;
-        pointUpdate(node->right, old->right, mid + 1, nodeRight, ind, v);
+        nl[nInd] = nl[oInd];
+        nr[nInd] = nodeCnt++;
+        pointUpdate(nr[nInd], nr[oInd], mid + 1, nodeRight, ind, v);
     }
 
-    node->value = node->left->value + node->right->value;
+    nv[nInd] = nv[nl[nInd]] + nv[nr[nInd]];
 }
 
 void initTree() {
-    for (sn = 1; sn < n; sn <<= 1);
     // construct default tree
-    root[0] = new Node;
+    root[0] = nodeCnt++;
     buildTree(root[0], 0, sn - 1);
 }
 
 void dfs(int node) {
     // enter
-    root[++currStage] = new Node;
+    root[++currStage] = nodeCnt++;
     sInd[node] = currStage;
-    pointUpdate(root[currStage], root[currStage - 1], 0, sn - 1, val2Seg[value[node]], 1);
+    pointUpdate(root[currStage], root[currStage - 1], 0, sn - 1, value[node], 1);
 
     // traverse children
     for (auto& child : edges[node]) {
@@ -95,9 +92,9 @@ void dfs(int node) {
     }
 
     // leave
-    root[++currStage] = new Node;
+    root[++currStage] = nodeCnt++;
     eInd[node] = currStage;
-    pointUpdate(root[currStage], root[currStage - 1], 0, sn - 1, val2Seg[value[node]], 0);
+    pointUpdate(root[currStage], root[currStage - 1], 0, sn - 1, value[node], 0);
 }
 
 int lca(int x, int y) {
@@ -109,7 +106,7 @@ int lca(int x, int y) {
         if (depth[xx] >= depth[y])
             x = xx;
     }
-    
+
     if (x == y)
         return x;
 
@@ -135,20 +132,20 @@ int query(int x, int y, int k) {
 
     while (l != r) {
         int mid = (l + r) / 2;
-        int cnt = nx->left->value + ny->left->value
-                - nz->left->value - nw->left->value;
+        int cnt = nv[nl[nx]] + nv[nl[ny]] - nv[nl[nz]] - nv[nl[nw]];
         if (cnt >= k) {
-            nx = nx->left;
-            ny = ny->left;
-            nz = nz->left;
-            nw = nw->left;
+            nx = nl[nx];
+            ny = nl[ny];
+            nz = nl[nz];
+            nw = nl[nw];
             r = mid;
-        } else {
+        }
+        else {
             k -= cnt;
-            nx = nx->right;
-            ny = ny->right;
-            nz = nz->right;
-            nw = nw->right;
+            nx = nr[nx];
+            ny = nr[ny];
+            nz = nr[nz];
+            nw = nr[nw];
             l = mid + 1;
         }
     }
@@ -164,7 +161,8 @@ int main() {
 
     cin >> n >> m;
     FOR(i, 0, n) {
-        int x; cin >> x;
+        int x;
+        cin >> x;
         value[i] = x;
         sorted[i] = x;
     }
@@ -172,11 +170,14 @@ int main() {
     // compression
     sort(sorted, sorted + n);
     FOR(i, 0, n) {
-        val2Seg[sorted[i]] = i;
+        value[i] = lower_bound(sorted, sorted + n, value[i]) - sorted;
     }
 
     FOR(i, 0, n - 1) {
-        int a, b; cin >> a >> b; a--; b--;
+        int a, b;
+        cin >> a >> b;
+        a--;
+        b--;
         edges[a].push_back(b);
         edges[b].push_back(a);
     }
@@ -193,7 +194,9 @@ int main() {
 
     FOR(i, 0, m) {
         int x, y, k;
-        cin >> x >> y >> k; x--; y--;
+        cin >> x >> y >> k;
+        x--;
+        y--;
         cout << query(x, y, k) << '\n';
     }
 
