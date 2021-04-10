@@ -18,7 +18,8 @@ int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0);
 
-    int tc; cin >> tc;
+    int tc;
+    cin >> tc;
     FOR_(caseNum, 1, tc) {
         int ans = 0;
         cin >> n;
