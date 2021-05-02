@@ -9,17 +9,22 @@ using namespace std;
 constexpr int N = 110;
 constexpr int M = 50;
 
-using ll = unsigned long long;
+using ll = long long;
 
 int n;
 string num;
-string ans;
 
-ll subNum(ll x, int s, int e) {
-    ll d = 1;
-    FOR(i, 0, e) {
-        d *= 10;
+bool cmp(const string& l, const string& r) {
+    return (l.size() == r.size()) ? l < r : l.size() < r.size();
+}
+
+string f(int n, ll x) {
+    // concat x, x + 1, x + 2, ... n times
+    string ret;
+    FOR(i, 0, n) {
+        ret += to_string(x++);
     }
+    return ret;
 }
 
 int main() {
@@ -34,14 +39,20 @@ int main() {
         cin >> num;
         n = num.size();
 
-        for (int i = n / 2; i >= 1; --i) {
-            for (int j = 0; j + i < n; j += i) {
-                auto curr = num.substr(j, i);
-                auto next = num.substr(j + i, i);
+        string ans = string(20, '9');
 
-                if (curr >= next) {
-                    
-                }
+        FOR_(i, 2, 19) {
+            // parametric search
+            ll maxV = 2e9;
+            ll x = maxV;
+            for (ll step = maxV; step >= 1; step /= 2) {
+                while (x - step >= 1 && cmp(num, f(i, x - step)))
+                    x -= step;
+            }
+            string res = f(i, x);
+
+            if (cmp(res, ans)) {
+                ans = res;
             }
         }
 
