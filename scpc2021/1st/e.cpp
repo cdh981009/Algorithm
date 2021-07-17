@@ -6,82 +6,47 @@ using namespace std;
 #define FOR(i, a, b) for (int i = (a); i < (b); ++i)
 #define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
-constexpr int N = 101010;
-constexpr int K = 201010;
+constexpr int N = 10101;
+constexpr int K = 20101;
 
 using ll = long long;
 
 int n, k;
 
-int fenwick[N];
 int root[N];
+int delta[N];
 bool cf[N];
-vector<int> edge[N];
-
-int cnt;
-int ind[N];
-int sub[N];
 
 int find(int x) {
-    return x == root[x] ? x : root[x] = find(root[x]);
+    if (x == root[x]) {
+        return x;
+    } else {
+        find(root[x]);
+        delta[x] += delta[root[x]];
+        root[x] = root[root[x]];
+        return root[x];
+    }
 }
 
 bool same(int x, int y) {
     return find(x) == find(y);
 }
 
-void unite(int x, int y) {
-    x = find(x);
-    y = find(y);
+void unite(int x, int y, int d) {
+    find(x);
+    find(y);
 
+    d = delta[x] - delta[y] - d;
+
+    x = root[x];
+    y = root[y];
+    
     if (x == y)
         return;
 
     root[y] = x;
+    delta[y] = d;
     cf[x] |= cf[y];
-}
-
-struct Query {
-    int t, a, b, d;
-} q[K];
-
-void dfs(int node) {
-    ind[node] = ++cnt;
-    sub[node] = ind[node];
-
-    FOR(i, 0, edge[node].size()) {
-        int child = edge[node][i];
-        dfs(child);
-        sub[node] = max(sub[node], sub[child]);
-    }
-}
-
-void update(int x, int v) {
-    int i;
-    
-    i = ind[x];
-    while (i <= n) {
-        fenwick[i] += v;
-        i += (i & -i);
-    }
-
-    i = sub[x] + 1;
-    while (i <= n) {
-        fenwick[i] -= v;
-        i += (i & -i);
-    }
-}   
-
-int getVal(int x) {
-    int sum = 0;
-    x = ind[x];
-
-    while (x) {
-        sum += fenwick[x];
-        x &= x - 1;
-    }
-
-    return sum;
 }
 
 int main(int argc, char** argv) {
@@ -97,63 +62,37 @@ int main(int argc, char** argv) {
         cout << "Case #" << tc + 1 << '\n';
 
         cin >> n >> k;
-        memset(fenwick, 0, sizeof(int) * N);
-        memset(edge, 0, sizeof(vector<int>) * n);
-        cnt = 0;
+        memset(delta, 0, sizeof(int) * N);
+        memset(cf, 0, sizeof(bool) * N);
 
         FOR(i, 0, n) {
             root[i] = i;
         }
 
         FOR(i, 0, k) {
-            auto& query = q[i];
-            cin >> query.t >> query.a >> query.b;
-            query.a--;
-            query.b--;
-            if (query.t == 1) {
-                cin >> query.d;
-                if (!same(query.a, query.b)) {
-                    edge[find(query.a)].push_back(find(query.b));
-                    unite(query.a, query.b);
-                }
-            }
-        }
-
-        FOR(i, 0, n) {
-            if (find(i) == i) {
-                dfs(i);
-            }
-        }
-
-        FOR(i, 0, n) {
-            root[i] = i;
-            cf[i] = false;
-        }
-
-        FOR(i, 0, k) {
-            auto& query = q[i];
-            if (query.t == 1) {
-                if (same(query.a, query.b)) {
-                    if (getVal(query.a) - getVal(query.b) != query.d) {
-                        cf[find(query.a)] = true;
+            int t, a, b, d;
+            cin >> t >> a >> b;
+            a--;
+            b--;
+            
+            if (t == 1) {
+                cin >> d;
+                if (same(a, b)) {
+                    if (delta[a] - delta[b] != d) {
+                        cf[root[a]] = true;
                     }
                 } else {
-                    update(find(query.b), getVal(query.a) - getVal(query.b) - query.d);
-                    unite(query.a, query.b);
+                    unite(a, b, d);
                 }
             } else {
-                if (!same(query.a, query.b)) {
+                if (!same(a, b)) {
                     cout << "NC\n";
-                } else if (cf[find(query.a)]) {
+                } else if (cf[root[a]]) {
                     cout << "CF\n";
                 } else {
-                    cout << getVal(query.a) - getVal(query.b) << '\n';
+                    cout << delta[a] - delta[b] << '\n';
                 }
             }
-            // FOR(i, 0, n) {
-            //     cout << getVal(i) << ' ';
-            // }
-            // cout << endl;
         }
     }
 
