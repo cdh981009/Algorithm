@@ -44,7 +44,7 @@ int main() {
         } else {
             int j = lower_bound(pos, pos + n, y) - pos;
             if (j < i) {
-                amount[i] = ((ll) amount[i] + pre[i - 1] - (j == 0 ? 0 : pre[j - 1])) % M;
+                amount[i] = ((ll) amount[i] + pre[i - 1] - (j == 0 ? 0 : pre[j - 1]) + M) % M;
             }
             pre[i] = ((ll) amount[i] + pre[i - 1]) % M;
         }
