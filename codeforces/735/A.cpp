@@ -9,10 +9,8 @@ using namespace std;
 using ll = long long;
 using pii = pair<int, int>;
 
-constexpr int N = 301010;
+constexpr int N = 101010;
 int n;
-ll ans;
-int arr[N];
 
 int main() {
 #ifndef ONLINE_JUDGE
@@ -27,14 +25,14 @@ int main() {
     cin >> tc;
 
     while (tc--) {
-        ans = 1;
         cin >> n;
-        FOR(i, 0, n) {
-            cin >> arr[i];
-        }
-
-        FOR(i, 1, n) {
-            ans = max(ans, (ll) arr[i - 1] * arr[i]);
+        ll ans = 0;
+        ll x, y;
+        cin >> y;
+        FOR(i, 0, n - 1) {
+            cin >> x;
+            ans = max(ans, x * y);
+            y = x;
         }
 
         cout << ans << '\n';

@@ -2,16 +2,15 @@
 
 using namespace std;
 
-#define INF 1e12;
+#define INF 1e9;
 #define FOR(i, a, b) for (int i = (a); i < (b); ++i)
 #define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
 using ll = long long;
 using pii = pair<int, int>;
 
-constexpr int N = 301010;
-int n;
-int k;
+constexpr int N = 101010;
+int n, k;
 ll ans;
 int arr[N];
 
@@ -29,18 +28,14 @@ int main() {
 
     while (tc--) {
         cin >> n >> k;
-        FOR(i, 0, n) {
-            cin >> arr[i + 1];
+        FOR_(i, 1, n) {
+            cin >> arr[i];
         }
 
-        ans = -INF;
-        for (int i = n; i >= 1; --i) {
-            int j = i - 1;
-            int cnt = 0;
-            while (j >= 1 && cnt <= k + 10) {
-                cnt++;
+        ans = -1e11;
+        FOR_(i, max(1, n - 2 * k), n) {
+            FOR_(j, i + 1, n) {
                 ans = max(ans, (ll)i * j - (ll)k * (arr[i] | arr[j]));
-                j--;
             }
         }
 
