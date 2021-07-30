@@ -13,36 +13,6 @@ constexpr int N = 10;
 int n, m;
 int ans;
 
-int solve(int x) {
-    int p = (1 << x);
-    int a = (n & p);
-    int b = (m & p);
-
-    if (x == 0) {
-        return b ? 2 : (a ? 0 : 1);
-    }
-
-    int r = solve(x - 1);
-
-    if (a && !b) {
-        return 0;
-    } else if (a && b) {
-        if (r == p) {
-            return p << 1;
-        } else {
-            return r;
-        }
-    } else if (!a && b) {
-        if (r == p) {
-            return p << 1;
-        } else {
-            return p + r;
-        }
-    } else {
-        return r;
-    }
-}
-
 int main() {
 #ifndef ONLINE_JUDGE
     freopen("input.txt", "r", stdin);
@@ -58,7 +28,20 @@ int main() {
     while (tc--) {
         cin >> n >> m;
 
-        ans = solve(30);
+        m++;
+        ans = 0;
+
+        bool s = true;
+        for (int i = 30; i >= 0; --i) {
+            int x = (n & (1 << i));
+            int y = (m & (1 << i));
+            if (!x && y && s) {
+                ans |= (1 << i);
+            }
+            if (x && !y) {
+                s = false;
+            }
+        }
 
         cout << ans << '\n';
     }
