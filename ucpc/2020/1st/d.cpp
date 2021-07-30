@@ -2,7 +2,7 @@
 
 using namespace std;
 
-#define INF 1e9;
+#define INF 1e9
 #define FOR(i, a, b) for (int i = (a); i < (b); ++i)
 #define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
