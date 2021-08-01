@@ -11,7 +11,7 @@ constexpr int N = (1 << 10);
 using ll = long long;
 using pii = pair<int, int>;
 
-int arr[N][N];
+char arr[N][N];
 int k;
 
 void solve(int k, int xo, int yo, int a, int b) {
@@ -22,7 +22,7 @@ void solve(int k, int xo, int yo, int a, int b) {
                 int y = yo + j;
                 if (x == xo + a && y == yo + b)
                     continue;
-                arr[x][y] = ((x / 2) + (y / 2)) % 2 ? 1 : 2;
+                arr[x][y] = ((x / 2) + (y / 2)) % 2 ? 'a' : 'b';
             }
         }
     } else {
@@ -36,12 +36,12 @@ void solve(int k, int xo, int yo, int a, int b) {
             q = 3;
         if (a >= m && b >= m)
             q = 4;
-        solve(k - 1, xo + 0, yo + 0, q == 1 ? a : m - 1,        q == 1 ? b : m - 1);
-        solve(k - 1, xo + m, yo + 0, q == 2 ? a - m : 0,        q == 2 ? b : m - 1);
-        solve(k - 1, xo + 0, yo + m, q == 3 ? a : m - 1,        q == 3 ? b - m : 0);
-        solve(k - 1, xo + m, yo + m, q == 4 ? a - m : 0,        q == 4 ? b - m : 0);
+        solve(k - 1, xo + 0, yo + 0, q == 1 ? a : m - 1, q == 1 ? b : m - 1);
+        solve(k - 1, xo + m, yo + 0, q == 2 ? a - m : 0, q == 2 ? b : m - 1);
+        solve(k - 1, xo + 0, yo + m, q == 3 ? a : m - 1, q == 3 ? b - m : 0);
+        solve(k - 1, xo + m, yo + m, q == 4 ? a - m : 0, q == 4 ? b - m : 0);
 
-        int px = q % 2  ? m - 1 : m;
+        int px = q % 2 ? m - 1 : m;
         int py = q <= 2 ? m - 1 : m;
 
         FOR(i, 0, 2) {
@@ -50,7 +50,7 @@ void solve(int k, int xo, int yo, int a, int b) {
                 int y = yo + m - 1 + j;
                 if (x == px + xo && y == py + yo)
                     continue;
-                arr[x][y] = 3;
+                arr[x][y] = 'c';
             }
         }
     }
@@ -63,33 +63,24 @@ int main() {
 
     ios_base::sync_with_stdio(false);
     cin.tie(0);
-    
-    int tc; cin >> tc;
+
+    int tc;
+    cin >> tc;
     cin >> k;
 
     while (tc--) {
-        int a, b; cin >> a >> b;
+        int a, b;
+        cin >> a >> b;
         a--;
         b--;
 
-        memset(arr, 0, sizeof(int) * N * N);
+        arr[a][b] = '@';
 
         solve(k, 0, 0, a, b);
 
         FOR(i, 0, 1 << k) {
             FOR(j, 0, 1 << k) {
-                int x = arr[i][j];
-                char o;
-                if (x == 0) {
-                    o = '@';
-                } else if (x == 1) {
-                    o = 'a';
-                } else if (x == 2) {
-                    o = 'b';
-                } else {
-                    o = 'c';
-                }
-                cout << o;
+                cout << arr[i][j];
             }
             cout << '\n';
         }
