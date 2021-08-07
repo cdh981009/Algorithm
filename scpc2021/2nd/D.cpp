@@ -16,35 +16,7 @@ int n, k;
 ll ans;
 string hay, p;
 
-bool match(string& s1, int i1, string& s2, int i2, int l) {
-    bool ret = true;
-    int ind[A];
-    bool occ[A];
-
-    memset(ind, -1, sizeof(int) * A);
-    memset(occ, 0, sizeof(bool) * A);
-
-    FOR(i, 0, l) {
-        if (ind[s1[i1] - 'a'] == -1) {
-            if (occ[s2[i2] - 'a']) {
-                ret = false;
-                break;
-            }
-            ind[s1[i1] - 'a'] = s2[i2];
-            occ[s2[i2] - 'a'] = true;
-        } else if (s2[i2] != ind[s1[i1] - 'a']) {
-            ret = false;
-            break;
-        }
-        i1++;
-        i2++;
-    }
-
-    return ret;
-}
-
 struct Node {
-    bool terminal = false;
     ll score = 0;
 
     int cnt = 0;
@@ -97,7 +69,6 @@ void insert(string& p, int score) {
         node = node->children[c];
     }
 
-    node->terminal = true;
     node->score += score;
 }
 
@@ -183,8 +154,7 @@ void search() {
         if (here->children[ic] != nullptr)
             here = here->children[ic];
 
-        //if (here->terminal == true)
-            ans += here->score;
+        ans += here->score;
     }
 }
 
