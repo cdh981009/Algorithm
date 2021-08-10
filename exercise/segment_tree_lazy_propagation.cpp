@@ -8,27 +8,32 @@ using namespace std;
 #define FOR(i, a, b) for (int i = (a); i < (b); ++i)
 #define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
+using ll = long long;
+using pii = pair<int, int>;
+
 constexpr int N = (1 << 21);
-int n;
+int sn;
 
-long long segTree[N];
-long long lazy[N];
+ll seg[N];
+ll lazy[N];
 
-void initTree(const vector<long long>& arr) {
-    for (n = 1; n < arr.size(); n <<= 1)
+// sum tree
+
+void init(const vector<ll>& arr) {
+    for (sn = 1; sn < arr.size(); sn <<= 1)
         ;
-    // segTree size is 2 * n, 1-based
     // leaf init
-    FOR(i, 0, n)
-    segTree[n + i] = (i < arr.size() ? arr[i] : 0 /* default value */);
-    for (int i = n - 1; i >= 1; --i)
-        segTree[i] = segTree[2 * i] + segTree[2 * i + 1];
+    FOR(i, 0, sn) {
+        seg[sn + i] = (i < arr.size() ? arr[i] : 0 /* default value */);
+    }
+    for (int i = sn - 1; i >= 1; --i)
+        seg[i] = seg[2 * i] + seg[2 * i + 1];
 }
 
-void lazyUpdate(int node, int nodeLeft, int nodeRight) {
-    segTree[node] += lazy[node] * (nodeRight - nodeLeft + 1);
+void prpgt(int node, int nodeL, int nodeR) {
+    seg[node] += lazy[node] * (nodeR - nodeL + 1);
 
-    if (nodeLeft != nodeRight) {
+    if (nodeL != nodeR) {
         lazy[2 * node] += lazy[node];
         lazy[2 * node + 1] += lazy[node];
     }
@@ -36,84 +41,76 @@ void lazyUpdate(int node, int nodeLeft, int nodeRight) {
     lazy[node] = 0;
 }
 
-void rangeUpdate(const int left, const int right, const long long x, int node, int nodeLeft, int nodeRight) {
-    lazyUpdate(node, nodeLeft, nodeRight);
+// add x to all elements in range [l, r]
+void rangeUpdate(int l, int r, ll x, int node, int nodeL, int nodeR) {
+    prpgt(node, nodeL, nodeR);
 
-    if (right < nodeLeft || nodeRight < left) {
-        // node's range and query range do not overlap
-        /* do nothing */
+    if (r < nodeL || nodeR < l) {
         return;
     }
 
-    if (left <= nodeLeft && nodeRight <= right) {
-        // node's range is completely inside query range
-        segTree[node] += x * (nodeRight - nodeLeft + 1);
+    if (l <= nodeL && nodeR <= r) {
+        seg[node] += x * (nodeR - nodeL + 1);
 
-        if (nodeLeft != nodeRight) {
+        if (nodeL != nodeR) {
             lazy[2 * node] += x;
             lazy[2 * node + 1] += x;
         }
         return;
     }
 
-    // node's range and query range partially overlaps,
-    // or query range is inside node's range
+    int mid = (nodeL + nodeR) / 2;
+    rangeUpdate(l, r, x, 2 * node, nodeL, mid);
+    rangeUpdate(l, r, x, 2 * node + 1, mid + 1, nodeR);
 
-    int mid = (nodeLeft + nodeRight) / 2;
-    rangeUpdate(left, right, x, 2 * node, nodeLeft, mid);
-    rangeUpdate(left, right, x, 2 * node + 1, mid + 1, nodeRight);
-
-    segTree[node] = segTree[2 * node] + segTree[2 * node + 1];
+    seg[node] = seg[2 * node] + seg[2 * node + 1];
     return;
 }
 
-void rangeUpdate(const int left, const int right, const long long x) {
-    rangeUpdate(left, right, x, 1, 0, n - 1);
+void rangeUpdate(const int l, const int r, const ll x) {
+    rangeUpdate(l, r, x, 1, 0, sn - 1);
 }
 
-long long rangeQuery(const int left, const int right, int node, int nodeLeft, int nodeRight) {
-    lazyUpdate(node, nodeLeft, nodeRight);
+ll rangeQuery(const int l, const int r, int node, int nodeL, int nodeR) {
+    prpgt(node, nodeL, nodeR);
 
-    if (right < nodeLeft || nodeRight < left) {
-        // node's range and query range do not overlap
+    if (r < nodeL || nodeR < l)
         return 0;
-    }
 
-    if (left <= nodeLeft && nodeRight <= right) {
-        // node's range is completely inside query range
-        return segTree[node];
-    }
+    if (l <= nodeL && nodeR <= r)
+        return seg[node];
 
-    // node's range and query range partially overlaps,
-    // or query range is inside node's range
-    int mid = (nodeLeft + nodeRight) / 2;
-    return rangeQuery(left, right, 2 * node, nodeLeft, mid) +
-           rangeQuery(left, right, 2 * node + 1, mid + 1, nodeRight);
+    int mid = (nodeL + nodeR) / 2;
+    return rangeQuery(l, r, 2 * node, nodeL, mid) +
+           rangeQuery(l, r, 2 * node + 1, mid + 1, nodeR);
 }
 
-long long rangeQuery(const int left, const int right) {
-    return rangeQuery(left, right, 1, 0, n - 1);
+ll rangeQuery(const int l, const int r) {
+    return rangeQuery(l, r, 1, 0, sn - 1);
 }
 
 int main() {
+#ifndef ONLINE_JUDGE
     freopen("input.txt", "r", stdin);
-    //freopen("output.txt", "w", stdout);
+//freopen("output.txt", "w", stdout);
+#endif
+
     ios_base::sync_with_stdio(false);
     cin.tie(0);
 
     int n, m, k;
     cin >> n >> m >> k;
 
-    vector<long long> arr;
+    vector<ll> arr;
     arr.reserve(n);
 
     FOR(i, 0, n) {
-        long long x;
+        ll x;
         cin >> x;
         arr.push_back(x);
     }
 
-    initTree(arr);
+    init(arr);
 
     FOR(i, 0, m + k) {
         int type;
@@ -123,7 +120,7 @@ int main() {
         s--;
         e--;
         if (type == 1) {
-            long long x;
+            ll x;
             cin >> x;
             rangeUpdate(s, e, x); // not intended
         } else {
