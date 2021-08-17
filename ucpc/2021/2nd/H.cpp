@@ -6,7 +6,7 @@ using namespace std;
 #define FOR(i, a, b) for (int i = (a); i < (b); ++i)
 #define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
-constexpr int N = 5010;
+constexpr int N = 501010;
 constexpr int M = 1e9 + 7;
 
 using ll = long long;
