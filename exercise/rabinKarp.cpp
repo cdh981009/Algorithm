@@ -26,8 +26,8 @@ void rabinKarp(const string& s, const string& p) {
 
     FOR(i, 0, p.size()) {
         FOR(j, 0, 2) {
-            sh[j] = (sh[j] * b[j]) % m[j] + s[i];
-            ph[j] = (ph[j] * b[j]) % m[j] + p[i];
+            sh[j] = (sh[j] * b[j] + s[i]) % m[j];
+            ph[j] = (ph[j] * b[j] + p[i]) % m[j];
             pw[j] = (pw[j] * b[j]) % m[j];
         }
     }
