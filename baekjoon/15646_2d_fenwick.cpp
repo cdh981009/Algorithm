@@ -49,8 +49,8 @@ int main() {
             cin >> x1 >> y1 >> x2 >> y2 >> d;
             upd(x1, y1, d);
             upd(x2 + 1, y2 + 1, d);
-            upd(x1 + 1, y2 + 1, -d);
-            upd(x2 + 1, y1 + 1, -d);
+            upd(x1, y2 + 1, -d);
+            upd(x2 + 1, y1, -d);
         } else {
             cin >> x1 >> y1;
             cout << query(x1, y1) << '\n';
