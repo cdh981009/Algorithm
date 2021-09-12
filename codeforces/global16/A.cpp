@@ -27,11 +27,8 @@ int main() {
 
     while (tc--) {
         cin >> n >> s;
-        if (n == 1) {
-            cout << s << '\n';
-        } else {
-            cout << s / (n - (n - 1) / 2) << '\n';
-        }
+        int m = n / 2 + 1;
+        cout << s / m << '\n';
     }
     return 0;
 }
