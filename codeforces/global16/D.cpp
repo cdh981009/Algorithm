@@ -13,7 +13,7 @@ using pii = pair<int, int>;
 constexpr int N = 301;
 int n, m, k;
 int ans;
-pii p[N];
+pii p[N * N];
 
 int main() {
 #ifndef ONLINE_JUDGE
