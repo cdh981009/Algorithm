@@ -34,13 +34,10 @@ int getDp(int s) {
         int x = t * sm;
         // by heli
         int y = h;
-        int center = arr[(s + i) / 2];
-        int r = upper_bound(arr, arr + n, center) - arr;
-        int l = lower_bound(arr, arr + n, center) - arr;
-        if (--l >= s)
-            y += (center * (l - s + 1) - sum(s, l)) * t;
-        if (r <= i)
-            y += (sum(r, i) - center * (i - r + 1)) * t;
+        int mid = (s + i) / 2;
+        int midv = arr[mid];
+        y += (midv * (mid - s + 1) - sum(s, mid)) * t;
+        y += (sum(mid, i) - midv * (i - mid + 1)) * t;
 
         ref = min(min(x, y) + getDp(i + 1), ref);
     }
