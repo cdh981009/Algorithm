@@ -86,8 +86,6 @@ int main() {
     }
     sort(arr, arr + n);
 
-    memset(prv, -1, sizeof(prv));
-
     root = new Trie;
     ans = 0;
 
