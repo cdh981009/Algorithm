@@ -40,7 +40,7 @@ int main() {
 
     cin >> n;
 
-    ll t = modpow(2, M - 2);
+    ll inv = M - M / 2;
     //cout << t << '\n';
     ll x = 1;
     ll aux;
@@ -56,7 +56,7 @@ int main() {
         aux %= M;
         aux *= aux + 1;
         aux %= M;
-        aux *= t;
+        aux *= inv;
         aux %= M;
 
         ans += aux;
