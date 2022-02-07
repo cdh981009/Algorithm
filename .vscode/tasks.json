@@ -4,7 +4,8 @@
     "type": "shell",
     "echoCommand": true,
     "presentation": {
-        "reveal": "always"
+        "reveal": "silent",
+        "close": true
     },
     "tasks": [
         {
