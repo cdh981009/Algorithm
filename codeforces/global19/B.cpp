@@ -13,29 +13,6 @@ constexpr int N = 101;
 
 int n;
 vector<int> v;
-int dp[N][N];
-
-int getDp(int s, int e) {
-    if (s == e) return v[s] == 0 ? 2 : 1;
-    if (s > e) return 0;
-
-    int& ref = dp[s][e];
-    if (ref != -1) return ref;
-    ref = 0;
-
-    int cnt[110] = {0,};
-    FOR_(i, s, e) {
-        if (v[i] <= 100)
-            cnt[v[i]]++;
-        FOR_(j, 0, 100) {
-            if (cnt[j] == 0) {
-                ref = max(ref, 1 + j + getDp(i + 1, e));
-                break;
-            }
-        }
-    }
-    return ref;
-}
 
 int main() {
 #ifndef ONLINE_JUDGE
@@ -50,17 +27,16 @@ int main() {
 
     while (tc--) {
         int n; cin >> n;
-        v = vector<int>(n);
-        memset(dp, -1, sizeof(dp));
+        v = vector<int>(n + 1);
         FOR(i, 0, n) {
-            cin >> v[i];
+            int x; cin >> x;
+            v[i + 1] = v[i] + (x == 0);
         }
         ll ans = 0;
         
-        FOR(i, 0, n) {
-            FOR(j, i, n) {
-                cout << i << ' ' << j << ' ' << getDp(i, j) << '\n';
-                ans += getDp(i, j);
+        FOR_(i, 1, n) {
+            FOR_(j, i, n) {
+                ans += v[j] - v[i - 1] + j - i + 1;
             }
         }
 
