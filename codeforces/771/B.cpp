@@ -31,21 +31,22 @@ int main() {
         FOR(i, 0, n) cin >> a[i];
         bool pos = true;
 
-        while (true) {
-            bool c = false;
-            FOR(i, 0, n - 1) {
-                if (a[i] > a[i + 1] && ((a[i] + a[i + 1]) % 2 == 1)) {
-                    swap(a[i], a[i + 1]);
-                    c = true;
+        int po, pe;
+        po = pe = 0;
+        FOR(i, 0, n) {
+            int x = a[i];
+            if (x % 2) {
+                if (x < po) {
+                    pos = false;
+                    break;
                 }
-            }
-            if (!c) {
-                FOR(i, 0, n - 1) {
-                    if (a[i] > a[i + 1]) {
-                        pos = false;
-                    }
+                po = x;
+            } else {
+                if (x < pe) {
+                    pos = false;
+                    break;
                 }
-                break;
+                pe = x;
             }
         }
 
