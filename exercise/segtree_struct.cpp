@@ -3,139 +3,126 @@
 using namespace std;
 
 #define INF 1e9
+#define fi first
+#define se second
 #define FOR(i, a, b) for (int i = (a); i < (b); ++i)
 #define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
 
 using ll = long long;
+using vi = vector<int>;
+using vl = vector<ll>;
 using pii = pair<int, int>;
+using pll = pair<ll, ll>;
 
-// count(sum) seg tree
+constexpr int N = 100;
+constexpr int M = 998244353;
+
+// counting (sum) seg
 struct Seg {
     int n;
-    vector<int> sg;
-    vector<int> lazy;
-    vector<int> &arr;
-
-    Seg(vector<int>& _arr): arr(_arr), n(_arr.size()) {
-        sg = vector<int>(4 * n);
-        lazy = vector<int>(4 * n, -1);
-        build(1, 0, n - 1);
+    vector<int> a;
+    
+    Seg(int sz) {
+        n = 1;
+        while (n <= sz) n *= 2;
+        a.resize(2 * n);
     }
 
-    void build(int node, int l, int r) {
-        if (l == r) {
-            sg[node] = arr[l];
-        } else {
-            int mid = (l + r) / 2;
-            build(2 * node, l, mid);
-            build(2 * node + 1, mid + 1, r);
-            sg[node] = sg[2 * node] + sg[2 * node + 1];
+    Seg(vi& v) {
+        n = 1;
+        int sz = v.size();
+        while (n <= sz) n *= 2;
+        a.resize(2 * n);
+
+        int def = 0; /* default value */
+        for (int i = 0; i < n; ++i) {
+            a[i + n] = (i < sz ? v[i] : def);
         }
-    }
-
-    void prop(int node, int l, int r) {
-        if (lazy[node] == -1) return;
-        
-        sg[node] = lazy[node] * (r - l + 1);
-        
-        if (l != r)
-            lazy[2 * node] = lazy[2 * node + 1] = lazy[node];
-
-        lazy[node] = -1;
-    }
-
-    int query(int l, int r) {
-        return query(1, 0, n - 1, l, r);
-    }
-
-    int query(int node, int nl, int nr, int ql, int qr) {
-        prop(node, nl, nr);
-
-        if (nr < ql || qr < nl) return 0;
-        
-        if (ql <= nl && nr <= qr) {
-            return sg[node];
+        for (int i = n - 1; i >= 1; --i) {
+            a[i] = a[2 * i] + a[2 * i + 1];
         }
-
-        int mid = (nl + nr) / 2;
-        return query(2 * node, nl, mid, ql, qr) + query(2 * node + 1, mid + 1, nr, ql, qr);
     }
 
     // set update
-    void upd(int l, int r, int x) {
-        upd(1, 0, n - 1, l, r, x);
+    void update(int x, int v) {
+        x += n;
+        a[x] = v;
+        x /= 2;
+        while (x > 0) {
+            a[x] = a[2 * x] + a[2 * x + 1];
+            x /= 2;
+        }
     }
 
-    void upd(int node, int nl, int nr, int ql, int qr, int x) {
-        prop(node, nl, nr);
+    // sum query
+    int query(int s, int e) {
+        s += n;
+        e += n;
+        int cnt = 0;
 
-        if (nr < ql || qr < nl) return;
-
-        if (ql <= nl && nr <= qr) {
-            sg[node] = (nr - nl + 1) * x;
-            if (nl != nr) {
-                lazy[2 * node] = x;
-                lazy[2 * node + 1] = x;
+        while (s <= e) {
+            if (s % 2 == 1) {
+                cnt += a[s++];
             }
-            return;
+            if (e % 2 == 0) {
+                cnt += a[e--];
+            }
+            s /= 2;
+            e /= 2;
         }
-        
-        int mid = (nl + nr) / 2;
-        upd(2 * node, nl, mid, ql, qr, x);
-        upd(2 * node + 1, mid + 1, nr, ql, qr, x);
-        sg[node] = sg[2 * node] + sg[2 * node + 1];
+
+        return cnt;
     }
 };
+
+ll cnt(vi& a) {
+    ll ret = 0;
+    int n = a.size();
+    Seg seg(n);
+
+    FOR(i, 0, n) {
+        ret += seg.query(a[i], n - 1);
+        seg.update(a[i], 1);
+    }
+
+    return ret;
+}
 
 int main() {
 #ifndef ONLINE_JUDGE
     freopen("input.txt", "r", stdin);
-    //freopen("output.txt", "w", stdout);
+    // freopen("output.txt", "w", stdout);
 #endif
 
     ios_base::sync_with_stdio(false);
     cin.tie(0);
-    
-    int n, q, x;
-    cin >> n >> q >> x;
 
-    vector<int> arr(n);
-    int pos;
+    int n;
+    vector<int> a, b;
+    cin >> n;
+    a = vi(n);
+    b = vi(n);
 
     FOR(i, 0, n) {
-        int a; cin >> a;
-        if (a < x)
-            arr[i] = 1;
-        if (a == x) pos = i;
+        int x; cin >> x;
+        a[--x] = i;
     }
 
-    Seg seg(arr);
-
-    FOR(i, 0, q) {
-        int c, l, r;
-        cin >> c >> l >> r;
-        l--, r--;
-
-        int cnt1 = seg.query(l, r);
-        int cnt0 = (r - l + 1) - cnt1;
-
-        if (c == 1) { // ascending
-            seg.upd(l, l + cnt1 - 1, 1);
-            seg.upd(l + cnt1, r, 0);
-        } else { // descending
-            seg.upd(l, l + cnt0 - 1, 0);
-            seg.upd(l + cnt0, r, 1);
-        }
-
-        if (l <= pos && pos <= r) {
-            if (c == 1) {
-                pos = l + cnt1;
-            } else {
-                pos = l + cnt0 - 1;
-            }
-        }
+    FOR(i, 0, n) {
+        int x; cin >> x;
+        b[--x] = i;
     }
 
-    cout << pos + 1 << '\n';
+    // counting inversion
+    vi aux(n);
+    ll acnt, bcnt;
+    acnt = cnt(a);
+    bcnt = cnt(b);
+
+    bool pos = true;
+    if (acnt % 2 != bcnt % 2) pos = false;
+
+    cout << (pos ? "Possible" : "Impossible") << '\n';
+
     return 0;
 }
