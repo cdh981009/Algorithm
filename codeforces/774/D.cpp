@@ -38,7 +38,7 @@ pii dfs(int node, int p, bool col) {
 
     pii ret = {0, 0};
     if (col == 1) {
-        ret = {1, -edges[node].size()};
+        ret = {1, -(int)edges[node].size()};
     }
 
     FOR(i, 0, edges[node].size()) {
@@ -52,11 +52,12 @@ pii dfs(int node, int p, bool col) {
             // don't color child
             pii res2 = dfs(nxt, node, false);
 
-            if (res1.fi > res2.fi) {
+            if (res1 > res2) {
                 currans.push_back(true);
                 ret.fi += res1.fi;
                 ret.se += res1.se;
             } else {
+                currans.push_back(false);
                 ret.fi += res2.fi;
                 ret.se += res2.se;
             }
@@ -122,6 +123,7 @@ int main() {
         auto res1 = dfs(root, -1, true);
 
         dfs2(root, -1, true);
+
         FOR(i, 0, n) sum += ans[i];
     }
 
