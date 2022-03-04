@@ -32,16 +32,13 @@ pii dfs(int node, int p, bool col) {
     memd = true;
 
     if (edges[node].size() == 1 && p != -1) {  // leaf
-        if (col == 1) {
-            return {1, 1};
-        } else {
-            return {0, 0};
-        }
+        if (col == 1) return {1, -1};
+        else          return {0, 0};
     }
 
     pii ret = {0, 0};
     if (col == 1) {
-        ret = {1, edges[node].size()};
+        ret = {1, -edges[node].size()};
     }
 
     FOR(i, 0, edges[node].size()) {
@@ -59,18 +56,7 @@ pii dfs(int node, int p, bool col) {
                 currans.push_back(true);
                 ret.fi += res1.fi;
                 ret.se += res1.se;
-            } else if (res1.fi == res2.fi) {
-                if (res1.se > res2.se) {
-                    currans.push_back(false);
-                    ret.fi += res2.fi;
-                    ret.se += res2.se;
-                } else {
-                    currans.push_back(true);
-                    ret.fi += res1.fi;
-                    ret.se += res1.se;
-                }
-            } else {  //
-                currans.push_back(false);
+            } else {
                 ret.fi += res2.fi;
                 ret.se += res2.se;
             }
@@ -88,10 +74,8 @@ pii dfs(int node, int p, bool col) {
 void dfs2(int node, int p, bool col) {
     if (col == true) {
         gc++;
-        sum += edges[node].size();
         ans[node] = edges[node].size();
     } else {
-        sum += 1;
         ans[node] = 1;
     }
 
@@ -138,6 +122,7 @@ int main() {
         auto res1 = dfs(root, -1, true);
 
         dfs2(root, -1, true);
+        FOR(i, 0, n) sum += ans[i];
     }
 
     cout << gc << ' ' << sum << '\n';
