@@ -5,8 +5,8 @@ using namespace std;
 #define INF 1e9
 #define fi first
 #define se second
-#define FOR(i, a, b) for (int i = (a); i < (b); ++i)
-#define FOR_(i, a, b) for (int i = (a); i <= (b); ++i)
+#define FOR(i, a, b) for (ll i = (a); i < (b); ++i)
+#define FOR_(i, a, b) for (ll i = (a); i <= (b); ++i)
 
 using ll = long long;
 using vi = vector<int>;
@@ -16,8 +16,6 @@ using pll = pair<ll, ll>;
 
 constexpr int N = 100;
 constexpr int M = 998244353;
-
-constexpr int N = 1e5;
 
 int main() {
 #ifndef ONLINE_JUDGE
