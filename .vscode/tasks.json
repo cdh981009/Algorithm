@@ -14,6 +14,7 @@
             "args": [
                 "-g",
                 "\"${file}\"",
+                "-DLOCAL",
                 "-o",
                 "\"${fileDirname}\\${fileBasenameNoExtension}.exe\""
             ],
@@ -75,6 +76,7 @@
                 "-std=c++17",
                 "-g",
                 "\"${file}\"",
+                "-DLOCAL",
                 "-o",
                 "\"${fileDirname}\\${fileBasenameNoExtension}.exe\""
             ],
