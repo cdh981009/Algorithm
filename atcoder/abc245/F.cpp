@@ -25,54 +25,7 @@ constexpr int M = 100;
 
 ll n, m, ans;
 vector<int> edges[N];
-vector<int> backEdges[N];
-bool visited[N];
-
-int cnt = 0;
-vector<int> stk;
-vector<vector<int>> scc;
-int myScc[N];
-bool stat[N];
-
-vector<int> sccEdge[N];
-
-void dfs1(int node) {
-    visited[node] = true;
-    for (auto child : edges[node]) {
-        if (!visited[child])
-            dfs1(child);
-    }
-    stk.push_back(node);
-}
-
-void dfs2(int node) {
-    visited[node] = true;
-    for (auto child : backEdges[node]) {
-        if (!visited[child])
-            dfs2(child);
-    }
-    scc.back().push_back(node);
-}
-
-bool dfs3(int sccNode) {
-    bool& st = stat[sccNode];
-
-    if (visited[sccNode]) return st;
-    visited[sccNode] = true;
-
-    st = scc[sccNode].size() > 1;
-
-    auto &v = sccEdge[sccNode];
-    sort(v.begin(), v.end());
-    v.erase(unique(v.begin(), v.end()), v.end());
-
-    for (auto nxt: v) {
-        st |= dfs3(nxt);
-    }
-
-    if (st) ans += scc[sccNode].size();
-    return st;
-}
+int degree[N];
 
 int main() {
 #ifndef ONLINE_JUDGE
@@ -87,50 +40,29 @@ int main() {
     rep(i, 0, m) {
         int u, v; cin >> u >> v;
         u--, v--;
-        edges[u].push_back(v);
-        backEdges[v].push_back(u);
+        edges[v].push_back(u);
+        degree[u]++;
     }
+
+    queue<int> q;
 
     FOR(i, 0, n) {
-        if (!visited[i]) {
-            dfs1(i);
-        }
+        if (degree[i] == 0) q.push(i);
     }
 
-    FOR(i, 0, n) {
-        visited[i] = false;
-    }
+    ans = n;
+    ans -= q.size();
 
-    FOR(i, 0, stk.size()) {
-        auto node = stk[stk.size() - 1 - i];
-        if (!visited[node]) {
-            scc.push_back(vector<int>());
-            dfs2(node);
-            // sort(scc.back().begin(), scc.back().end());
-        }
-    }
+    while (!q.empty()) {
+        int curr = q.front();
+        q.pop();
 
-    rep(i, 0, scc.size()) {
-        for (auto &node : scc[i]) {
-            myScc[node] = i;
-        }
-    }
-
-    rep(i, 0, scc.size()) {
-        for (auto &node : scc[i]) {
-            for (auto &adj : edges[node]) {
-                if (myScc[adj] != myScc[node]) {
-                    sccEdge[i].push_back(myScc[adj]);
-                }
+        for (auto &nxt: edges[curr]) {
+            if (--degree[nxt] == 0) {
+                ans -= 1;
+                q.push(nxt);
             }
         }
-    }
-
-    rep(i, 0, scc.size())
-        visited[i] = false;
-    
-    rep(i, 0, scc.size()) {
-        if (!visited[i]) dfs3(i);
     }
 
     cout << ans << '\n';
