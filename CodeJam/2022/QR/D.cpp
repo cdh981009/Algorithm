@@ -24,6 +24,28 @@ constexpr int N = 2001;
 constexpr int M = 100;
 
 ll n, k, m, ans;
+vector<vi> edges;
+vl fun, p;
+
+ll dfs(int node) {
+    ll base = fun[node];
+    ll mn = INF;
+    ll sum = 0;
+
+    for (auto &c : edges[node]) {
+        ll ret = dfs(c);
+        if (ret < mn) {
+            mn = ret;
+        }
+        sum += ret;
+    }
+
+    if (mn == INF) mn = 0;
+    sum -= mn;
+    ans += sum;
+
+    return max(base, mn);
+}
 
 int main() {
 #ifdef LOCAL
@@ -40,39 +62,22 @@ int main() {
         cout << "Case #" << testcase << ": ";
         cin >> n;
 
-        vl f(n + 1, 0), p(n + 1, 0), deg(n + 1, 0);
-        vector<bool> visited(n + 1, false);
-        priority_queue<pii> q;
+        fun = vl(n + 1, 0);
+        p = vl(n + 1, 0);
+        edges = vector<vi>(n + 1);
 
-        rep_(i, 1, n) cin >> f[i];
+        rep_(i, 1, n) cin >> fun[i];
         rep_(i, 1, n) {
-            cin >> p[i];
-            deg[p[i]]++;
+            int x;
+            cin >> x;
+            edges[x].push_back(i);
+            p[i] = x;
         }
-
-        rep_(i, 1, n) {
-            if (deg[i] == 0) {
-                q.push({-f[i], i});
-                visited[i] = true;
-            }
-        }
-        visited[0] = true;
 
         ans = 0;
-        while (!q.empty()) {
-            auto pr = q.top();
-            q.pop();
-
-            int curr = pr.se;
-            ll v = -pr.fi;
-
-            int nxt = p[curr];
-            if (visited[nxt]) {
-                ans += v;
-            } else {
-                visited[nxt] = true;
-                q.push({-max(v, f[nxt]), nxt});
-            }
+        rep_(i, 1, n) {
+            if (p[i] == 0)
+                ans += dfs(i);
         }
 
         cout << ans << '\n';
