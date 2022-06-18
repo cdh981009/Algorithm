@@ -2,7 +2,7 @@
 
 using namespace std;
 
-#define INF 1e9
+#define INF (1e9+7)
 #define fi first
 #define se second
 #define rep(i, a, b) for (int i = (a); i < (b); ++i)
